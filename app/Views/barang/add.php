@@ -11,20 +11,29 @@
                     <form action="/gedung" method="POST">
                         <?= csrf_field(); ?>
                         <div class="form-group row">
-                            <label for="kode" class="col-sm-3 col-form-label">Kode Gedung</label>
+                            <label for="kode" class="col-sm-3 col-form-label">Kode</label>
                             <div class="col-sm-9">
-                                <input type="text" class="form-control <?= ($validation->hasError('kode')) ? 'is-invalid' : ''; ?>" name="kode" id="kode" value="<?= old('kode'); ?>" placeholder="Ex: GD001">
+                                <input type="text" class="form-control <?= ($validation->hasError('kode')) ? 'is-invalid' : ''; ?>" name="kode" id="kode" value="<?= old('kode'); ?>">
                                 <div class="invalid-feedback">
                                     <?= $validation->getError('kode'); ?>
                                 </div>
                             </div>
                         </div>
                         <div class="form-group row">
-                            <label for="nama" class="col-sm-3 col-form-label">Nama Gedung</label>
+                            <label for="nama" class="col-sm-3 col-form-label">Nama</label>
                             <div class="col-sm-9">
-                                <input type="text" class="form-control <?= ($validation->hasError('nama')) ? 'is-invalid' : ''; ?>" name="nama" id="nama" value="<?= old('nama'); ?>" placeholder="Nama Gedung...">
+                                <input type="text" class="form-control <?= ($validation->hasError('nama')) ? 'is-invalid' : ''; ?>" name="nama" id="nama" value="<?= old('nama'); ?>">
                                 <div class="invalid-feedback">
                                     <?= $validation->getError('nama'); ?>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="lokasi" class="col-sm-3 col-form-label">Lokasi Gedung</label>
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control <?= ($validation->hasError('lokasi')) ? 'is-invalid' : ''; ?>" name="lokasi" id="lokasi" value="<?= old('lokasi'); ?>">
+                                <div class="invalid-feedback">
+                                    <?= $validation->getError('lokasi'); ?>
                                 </div>
                             </div>
                         </div>

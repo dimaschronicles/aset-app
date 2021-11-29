@@ -57,20 +57,13 @@ class Gedung extends BaseController
                     'required' => 'Nama Gedung harus diisi!',
                 ]
             ],
-            'lokasi' => [
-                'rules' => 'trim|required',
-                'errors' => [
-                    'required' => 'Lokasi Gedung harus diisi!',
-                ]
-            ]
         ])) {
             return redirect()->to('/gedung/add')->withInput();
         }
 
         $this->gedungModel->save([
-            'kode' => $this->request->getVar('kode'),
-            'nama' => $this->request->getVar('nama'),
-            'lokasi' => $this->request->getVar('lokasi'),
+            'kode_gedung' => $this->request->getVar('kode'),
+            'nama_gedung' => $this->request->getVar('nama'),
         ]);
 
         session()->setFlashdata('message', '<div class="alert alert-success">Data <strong>gedung</strong> berhasil ditambahkan!</div>');
@@ -87,7 +80,7 @@ class Gedung extends BaseController
         $data = [
             'title' => 'Ubah Data Gedung',
             'validation' => \Config\Services::validation(),
-            'gedung' => $this->gedungModel->where('kode', $kode)->first(),
+            'gedung' => $this->gedungModel->where('kode_gedung', $kode)->first(),
         ];
 
         return view('gedung/edit', $data);
@@ -108,21 +101,14 @@ class Gedung extends BaseController
                     'required' => 'Nama Gedung harus diisi!',
                 ]
             ],
-            'lokasi' => [
-                'rules' => 'trim|required',
-                'errors' => [
-                    'required' => 'Lokasi Gedung harus diisi!',
-                ]
-            ]
         ])) {
-            return redirect()->to('/gedung/edit/' . $this->request->getVar('kode'))->withInput();
+            return redirect()->to('/gedung/edit/' . $this->request->getVar('kode_gedung'))->withInput();
         }
 
         $this->gedungModel->save([
-            'id' => $id,
-            'kode' => $this->request->getVar('kode'),
-            'nama' => $this->request->getVar('nama'),
-            'lokasi' => $this->request->getVar('lokasi'),
+            'id_gedung' => $id,
+            'kode_gedung' => $this->request->getVar('kode'),
+            'nama_gedung' => $this->request->getVar('nama'),
         ]);
 
         session()->setFlashdata('message', '<div class="alert alert-success">Data <strong>gedung</strong> berhasil diubah!</div>');

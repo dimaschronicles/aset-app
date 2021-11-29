@@ -23,34 +23,51 @@
                     <?php if (session()->get('role') == 1 || session()->get('role') == 2) : ?>
                         <a class="nav-link <?= ($title == "Data User") ? 'active' : ''; ?>" href="/user">
                             <div class="sb-nav-link-icon"><i class="fas fa-users"></i></div>
-                            Data User
+                            User
                         </a>
-                    <?php endif; ?>
 
+                        <a class="nav-link <?= ($title == "Data Barang") ? 'active' : '' ?>" href="/barang">
+                            <div class="sb-nav-link-icon"><i class="fas fa-desktop"></i></div>
+                            Barang
+                        </a>
 
-                    <a class="nav-link <?= ($title == "Data Aset") ? 'active' : '' ?>" href="/aset">
-                        <div class="sb-nav-link-icon"><i class="fas fa-laptop"></i></div>
-                        Data Aset
-                    </a>
-
-                    <?php if (session()->get('role') == 1 || session()->get('role') == 2) : ?>
                         <a class="nav-link <?= ($title ==  "Data Ruangan") ? 'active' : ''; ?>" href="/ruang">
                             <div class="sb-nav-link-icon"><i class="fas fa-door-open"></i></div>
-                            Data Ruangan
+                            Ruangan
                         </a>
 
                         <a class="nav-link <?= ($title == "Data Gedung") ? 'active' : ''; ?>" href="/gedung">
                             <div class="sb-nav-link-icon"><i class="fas fa-building"></i></div>
-                            Data Gedung
+                            Gedung
+                        </a>
+
+                        <a class="nav-link <?= ($title == "Data Kategori") ? 'active' : ''; ?>" href="/gedung">
+                            <div class="sb-nav-link-icon"><i class="fas fa-boxes"></i></div>
+                            Kategori
+                        </a>
+
+                        <a class="nav-link <?= ($title == "Data Kategori") ? 'active' : ''; ?>" href="/gedung">
+                            <div class="sb-nav-link-icon"><i class="fas fa-box"></i></div>
+                            Satuan
                         </a>
                     <?php endif; ?>
                     <!-- End Data Master -->
 
+                    <!-- Aset -->
+                    <div class="sb-sidenav-menu-heading">Data Aset</div>
+                    <a class="nav-link <?= ($title == "Data Aset") ? 'active' : '' ?>" href="/aset">
+                        <div class="sb-nav-link-icon"><i class="fas fa-laptop"></i></div>
+                        Aset
+                    </a>
+                    <!-- End Aset -->
+
+                    <!-- Report -->
                     <div class="sb-sidenav-menu-heading">Laporan</div>
                     <a class="nav-link <?= ($title == "Laporan Aset") ? 'active' : ''; ?>" href="/laporan">
                         <div class="sb-nav-link-icon"><i class="fas fa-book"></i></div>
                         Laporan Aset
                     </a>
+                    <!-- End Report -->
 
                     <!-- My Profile -->
                     <div class="sb-sidenav-menu-heading">Profil</div>

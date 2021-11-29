@@ -48,9 +48,8 @@ class Auth extends BaseController
         if (!empty($dataUser)) {
             if (password_verify($password, $dataUser['password'])) {
                 session()->set([
-                    'nik' => $dataUser['nik'],
                     'username' => $dataUser['username'],
-                    'name' => $dataUser['name'],
+                    'nama' => $dataUser['nama'],
                     'role' => $dataUser['role']
                 ]);
 
@@ -73,7 +72,7 @@ class Auth extends BaseController
 
     public function logout()
     {
-        $array_items = ['nik', 'username', 'role'];
+        $array_items = ['username', 'role'];
         session()->remove($array_items);
         session()->setFlashdata('message', '<div class="alert alert-success" role="alert">Anda berhasil keluar!</div>');
         return redirect()->to('auth')->withInput();

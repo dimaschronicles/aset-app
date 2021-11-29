@@ -8,13 +8,13 @@
             <div class="col-lg-8">
                 <div class="card shadow-sm">
                     <div class="card-body">
-                        <form action="/gedung/<?= $gedung['id']; ?>" method="POST">
+                        <form action="/gedung/<?= $gedung['id_gedung']; ?>" method="POST">
                             <?= csrf_field(); ?>
                             <input type="hidden" name="_method" value="PUT">
                             <div class="form-group row">
                                 <label for="kode" class="col-sm-3 col-form-label">Kode</label>
                                 <div class="col-sm-9">
-                                    <input type="text" class="form-control <?= ($validation->hasError('kode')) ? 'is-invalid' : ''; ?>" name="kode" id="kode" value="<?= (old('kode')) ? old('kode') : $gedung['kode']; ?>">
+                                    <input type="text" class="form-control <?= ($validation->hasError('kode')) ? 'is-invalid' : ''; ?>" name="kode" id="kode" value="<?= (old('kode')) ? old('kode') : $gedung['kode_gedung']; ?>">
                                     <div class="invalid-feedback">
                                         <?= $validation->getError('kode'); ?>
                                     </div>
@@ -23,18 +23,9 @@
                             <div class="form-group row">
                                 <label for="nama" class="col-sm-3 col-form-label">Nama</label>
                                 <div class="col-sm-9">
-                                    <input type="text" class="form-control <?= ($validation->hasError('nama')) ? 'is-invalid' : ''; ?>" name="nama" id="nama" value="<?= (old('nama')) ? old('nama') : $gedung['nama']; ?>">
+                                    <input type="text" class="form-control <?= ($validation->hasError('nama')) ? 'is-invalid' : ''; ?>" name="nama" id="nama" value="<?= (old('nama')) ? old('nama') : $gedung['nama_gedung']; ?>">
                                     <div class="invalid-feedback">
                                         <?= $validation->getError('nama'); ?>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="form-group row">
-                                <label for="nama" class="col-sm-3 col-form-label">Nama</label>
-                                <div class="col-sm-9">
-                                    <input type="text" class="form-control <?= ($validation->hasError('lokasi')) ? 'is-invalid' : ''; ?>" name="lokasi" id="lokasi" value="<?= (old('lokasi')) ? old('lokasi') : $gedung['lokasi']; ?>">
-                                    <div class="invalid-feedback">
-                                        <?= $validation->getError('lokasi'); ?>
                                     </div>
                                 </div>
                             </div>

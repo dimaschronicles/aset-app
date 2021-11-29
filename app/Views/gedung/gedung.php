@@ -3,16 +3,16 @@
 <?= $this->section('content'); ?>
 <div class="container-fluid px-4">
     <h2 class="mt-4 mb-4"><?= $title; ?></h1>
-        <hr>
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="/super">Dashboard</a></li>
-            <li class="breadcrumb-item active" aria-current="page">Gedung</li>
+        <ol class="breadcrumb mb-4" style="background-color: white;">
+            <li class="breadcrumb-item"><a href="/home">Dashboard</a></li>
+            <li class="breadcrumb-item active">Gedung</li>
         </ol>
+        <hr>
         <div class="row">
             <div class="col">
 
                 <div class="d-inline">
-                    <a href="/gedung/add" class="btn btn-primary"><i class="fas fa-building me-1"></i> Tambah Gedung</a>
+                    <a href="/gedung/add" class="btn btn-primary"><i class="fas fa-plus"></i> Tambah Gedung</a>
                 </div>
 
                 <!-- Alert Message -->
@@ -33,7 +33,6 @@
                                         <th>No</th>
                                         <th>Kode Gedung</th>
                                         <th>Nama Gedung</th>
-                                        <th>Lokasi Gedung</th>
                                         <th>Aksi</th>
                                     </tr>
                                 </thead>
@@ -41,22 +40,19 @@
                                     <?php $i = 1;
                                     foreach ($gedung as $g) : ?>
                                         <tr>
-                                            <td><?= $i++ ?></td>
-                                            <td><?= $g['kode']; ?></td>
-                                            <td><?= $g['nama']; ?></td>
-                                            <td><?= $g['lokasi']; ?></td>
+                                            <td><?= $i++; ?></td>
+                                            <td><?= $g['kode_gedung']; ?></td>
+                                            <td><?= $g['nama_gedung']; ?></td>
                                             <td>
-                                                <?php if (session()->get('role') == 1 || session()->get('role') == 2) : ?>
-                                                    <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#exampleModal<?= $g['id']; ?>">
-                                                        <i class="fas fa-trash"></i> Hapus
-                                                    </button>
-                                                <?php endif; ?>
-                                                <a href="/gedung/edit/<?= $g['kode']; ?>" class="btn btn-warning"><i class="fas fa-edit"></i> Edit</a>
+                                                <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#exampleModal<?= $g['id_gedung']; ?>">
+                                                    <i class="fas fa-trash"></i> Hapus
+                                                </button>
+                                                <a href="/gedung/edit/<?= $g['kode_gedung']; ?>" class="btn btn-warning"><i class="fas fa-edit"></i> Edit</a>
                                             </td>
                                         </tr>
 
                                         <!-- Modal -->
-                                        <div class="modal fade" id="exampleModal<?= $g['id'] ?>" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                        <div class="modal fade" id="exampleModal<?= $g['id_gedung'] ?>" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
                                             <div class="modal-dialog">
                                                 <div class="modal-content">
                                                     <div class="modal-header">
@@ -69,7 +65,7 @@
                                                         Apakah data ini akan dihapus?
                                                     </div>
                                                     <div class="modal-footer">
-                                                        <form action="/gedung/<?= $g['id']; ?>" method="post" class="d-inline">
+                                                        <form action="/gedung/<?= $g['id_gedung']; ?>" method="post" class="d-inline">
                                                             <?= csrf_field(); ?>
                                                             <input type="hidden" name="_method" value="DELETE">
                                                             <button type="submit" class="btn btn-danger">Ya</button>

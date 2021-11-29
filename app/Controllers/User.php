@@ -34,10 +34,6 @@ class User extends BaseController
             return redirect()->to('/user');
         }
 
-        if (session('role') == 3) {
-            return redirect()->to('home');
-        }
-
         $data = [
             'title' => 'Tambah Data User',
             'validation' => \Config\Services::validation(),
@@ -50,16 +46,6 @@ class User extends BaseController
     {
         // validasi input
         if (!$this->validate([
-            'nik' => [
-                'rules' => 'trim|required|numeric|min_length[16]|max_length[16]|is_unique[user.nik]',
-                'errors' => [
-                    'required' => 'NIK harus diisi!',
-                    'numeric' => 'NIK harus angka!',
-                    'min_length' => 'NIK kurang dari 16 digit!',
-                    'max_length' => 'NIK lebih dari 16 digit!',
-                    'is_unique' => 'NIK sudah terdaftar!',
-                ]
-            ],
             'name' => [
                 'rules' => 'trim|required',
                 'errors' => [
@@ -87,12 +73,6 @@ class User extends BaseController
                     'required' => 'Level User harus dipilih!',
                 ]
             ],
-            'gender' => [
-                'rules' => 'required',
-                'errors' => [
-                    'required' => 'Jenis Kelamin harus dipilih!',
-                ]
-            ],
             'telephone' => [
                 'rules' => 'trim|required|numeric|min_length[11]|max_length[13]',
                 'errors' => [
@@ -106,6 +86,12 @@ class User extends BaseController
                 'rules' => 'trim|required',
                 'errors' => [
                     'required' => 'Alamat harus diisi!',
+                ]
+            ],
+            'jabatan' => [
+                'rules' => 'trim|required',
+                'errors' => [
+                    'required' => 'Jabatan harus diisi!',
                 ]
             ],
             'password' => [
@@ -128,18 +114,15 @@ class User extends BaseController
         }
 
         $this->userModel->save([
-
-            'nik' => $this->request->getVar('nik'),
-            'name' => $this->request->getVar('name'),
+            'nama' => $this->request->getVar('name'),
             'username' => $this->request->getVar('username'),
             'password' => password_hash($this->request->getVar('password'), PASSWORD_DEFAULT),
             'email' => $this->request->getVar('email'),
-            'gender' => $this->request->getVar('gender'),
-            'address' => $this->request->getVar('address'),
-            'telephone' => $this->request->getVar('telephone'),
-            'image' => 'default.jpg',
+            'alamat' => $this->request->getVar('address'),
+            'no_telp' => $this->request->getVar('telephone'),
+            'jabatan' => $this->request->getVar('jabatan'),
+            'foto' => 'default.jpg',
             'role' => $this->request->getVar('role'),
-            'created_at' => date("d-m-Y")
         ]);
 
         session()->setFlashdata('message', '<div class="alert alert-success">Data <strong>user</strong> berhasil ditambahkan!</div>');
@@ -147,7 +130,7 @@ class User extends BaseController
         return redirect()->to('/user');
     }
 
-    public function edit($nik)
+    public function edit($username)
     {
         if (session()->get('role') != 1) {
             return redirect()->to('/user');
@@ -160,7 +143,7 @@ class User extends BaseController
         $data = [
             'title' => 'Ubah Data User',
             'validation' => \Config\Services::validation(),
-            'user' => $this->userModel->where('nik', $nik)->first(),
+            'user' => $this->userModel->where('username', $username)->first(),
         ];
 
         return view('user/edit', $data);
@@ -170,15 +153,6 @@ class User extends BaseController
     {
         // validasi input
         if (!$this->validate([
-            'nik' => [
-                'rules' => 'trim|required|numeric|min_length[16]|max_length[16]',
-                'errors' => [
-                    'required' => 'NIK harus diisi!',
-                    'numeric' => 'NIK harus angka!',
-                    'min_length' => 'NIK kurang dari 16 digit!',
-                    'max_length' => 'NIK lebih dari 16 digit!',
-                ]
-            ],
             'name' => [
                 'rules' => 'trim|required',
                 'errors' => [
@@ -204,12 +178,6 @@ class User extends BaseController
                     'required' => 'Level User harus dipilih!',
                 ]
             ],
-            'gender' => [
-                'rules' => 'required',
-                'errors' => [
-                    'required' => 'Jenis Kelamin harus dipilih!',
-                ]
-            ],
             'telephone' => [
                 'rules' => 'trim|required|numeric|min_length[11]|max_length[13]',
                 'errors' => [
@@ -225,19 +193,25 @@ class User extends BaseController
                     'required' => 'Alamat harus diisi!',
                 ]
             ],
+            'jabatan' => [
+                'rules' => 'trim|required',
+                'errors' => [
+                    'required' => 'Jabatan harus diisi!',
+                ]
+            ],
         ])) {
-            return redirect()->to('/user/edit')->withInput();
+            return redirect()->to('/user/edit/' . $this->request->getVar('username'))->withInput();
         }
 
         $this->userModel->save([
-            'id' => $id,
-            'nik' => $this->request->getVar('nik'),
-            'name' => $this->request->getVar('name'),
+            'id_user' => $id,
+            'nama' => $this->request->getVar('name'),
             'username' => $this->request->getVar('username'),
             'email' => $this->request->getVar('email'),
             'gender' => $this->request->getVar('gender'),
-            'address' => $this->request->getVar('address'),
-            'telephone' => $this->request->getVar('telephone'),
+            'alamat' => $this->request->getVar('address'),
+            'no_telp' => $this->request->getVar('telephone'),
+            'jabatan' => $this->request->getVar('jabatan'),
             'role' => $this->request->getVar('role'),
         ]);
 
@@ -254,8 +228,8 @@ class User extends BaseController
 
         $user = $this->userModel->find($id);
 
-        if ($user['image'] != 'default.jpg') {
-            unlink('img/' . $user['sampul']);
+        if ($user['foto'] != 'default.jpg') {
+            unlink('img/profile/' . $user['foto']);
         }
 
         $this->userModel->delete($id);
@@ -263,11 +237,11 @@ class User extends BaseController
         return redirect()->to('/user');
     }
 
-    public function detail($nik = null)
+    public function detail($username = null)
     {
         $data = [
             'title' => 'Detail User',
-            'user' => $this->userModel->where('nik', $nik)->first(),
+            'user' => $this->userModel->where('username', $username)->first(),
         ];
 
         return view('user/detail', $data);
