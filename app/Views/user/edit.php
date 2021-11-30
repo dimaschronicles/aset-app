@@ -13,7 +13,7 @@
         <div class="col-lg-8">
             <div class="card shadow-sm">
                 <div class="card-header">
-                    Ubah Data User
+                    Form Ubah Data User
                 </div>
                 <div class="card-body">
                     <form action="/user/<?= $user['id_user']; ?>" method="POST">

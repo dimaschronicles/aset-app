@@ -3,10 +3,18 @@
 <?= $this->section('content'); ?>
 <div class="container-fluid px-4">
     <h2 class="mt-4 mb-4"><?= $title; ?></h1>
+        <ol class="breadcrumb mb-4" style="background-color: white;">
+            <li class="breadcrumb-item"><a href="/home">Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="/gedung">Gedung</a></li>
+            <li class="breadcrumb-item active">Ubah Gedung</li>
+        </ol>
         <hr>
         <div class="row">
             <div class="col-lg-8">
                 <div class="card shadow-sm">
+                    <div class="card-header">
+                        Form Ubah Data Gedung
+                    </div>
                     <div class="card-body">
                         <form action="/gedung/<?= $gedung['id_gedung']; ?>" method="POST">
                             <?= csrf_field(); ?>

@@ -13,7 +13,7 @@
 
             <div class="d-inline">
                 <?php if (session()->get('role') == 1 || session()->get('role') == 2) : ?>
-                    <a href="/aset/add" class="btn btn-primary"><i class="fas fa-plus"></i> Tambah Barang</a>
+                    <a href="/barang/add" class="btn btn-primary"><i class="fas fa-plus"></i> Tambah Barang</a>
                 <?php endif; ?>
             </div>
 
@@ -41,17 +41,47 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr>
-                                    <td>1</td>
-                                    <td>TEKNOLOGI INFORMASI</td>
-                                    <td>ASUS VivoBook</td>
-                                    <td>ASUS</td>
-                                    <td>2019</td>
-                                    <td>
-                                        <a href="" class="btn btn-warning">Edit</a>
-                                        <a href="" class="btn btn-danger">Hapus</a>
-                                    </td>
-                                </tr>
+                                <?php $i = 1;
+                                foreach ($barang as $b) : ?>
+                                    <tr>
+                                        <td><?= $i++; ?></td>
+                                        <td><?= $b['nama_kategori']; ?></td>
+                                        <td><?= $b['nama_barang']; ?></td>
+                                        <td><?= $b['merek']; ?></td>
+                                        <td><?= $b['tahun_perolehan']; ?></td>
+                                        <td>
+                                            <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#exampleModal<?= $b['id_barang']; ?>">
+                                                <i class="fas fa-trash"></i> Hapus
+                                            </button>
+                                            <a href="/barang/edit/<?= $b['id_barang']; ?>" class="btn btn-warning"><i class="fas fa-edit"></i> Edit</a>
+                                        </td>
+                                    </tr>
+
+                                    <!-- Modal -->
+                                    <div class="modal fade" id="exampleModal<?= $b['id_barang'] ?>" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="exampleModalLabel">Peringatan</h5>
+                                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                        <span aria-hidden="true" data-dismiss="modal">&times;</span>
+                                                    </button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    Apakah data ini akan dihapus?
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <form action="/barang/<?= $b['id_barang']; ?>" method="post" class="d-inline">
+                                                        <?= csrf_field(); ?>
+                                                        <input type="hidden" name="_method" value="DELETE">
+                                                        <button type="submit" class="btn btn-danger">Ya</button>
+                                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Tidak</button>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                <?php endforeach; ?>
                             </tbody>
                         </table>
                     </div>

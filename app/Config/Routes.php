@@ -45,6 +45,14 @@ $routes->put('/user/(:any)', 'User::update/$1');
 $routes->delete('/user/(:num)', 'User::delete/$1');
 $routes->get('/user/detail/(:segment)', 'User::detail/$1');
 
+// barang
+$routes->get('/barang', 'Barang::index');
+$routes->get('/barang/add', 'Barang::create');
+$routes->post('/barang', 'Barang::save');
+$routes->get('/barang/edit/(:any)', 'Barang::edit/$1');
+$routes->put('/barang/(:any)', 'Barang::update/$1');
+$routes->delete('/barang/(:num)', 'Barang::delete/$1');
+
 // gedung
 $routes->get('/gedung', 'Gedung::index');
 $routes->get('/gedung/add', 'Gedung::create');
@@ -54,12 +62,28 @@ $routes->put('/gedung/(:any)', 'Gedung::update/$1');
 $routes->delete('/gedung/(:num)', 'Gedung::delete/$1');
 
 // ruangan
-$routes->get('/ruang', 'Ruang::index');
-$routes->get('/ruang/add', 'Ruang::create');
-$routes->post('/ruang', 'Ruang::save');
-$routes->get('/ruang/edit/(:any)', 'Ruang::edit/$1');
-$routes->put('/ruang/(:any)', 'Ruang::update/$1');
-$routes->delete('/ruang/(:num)', 'Ruang::delete/$1');
+$routes->get('/ruangan', 'Ruangan::index');
+$routes->get('/ruangan/add', 'Ruangan::create');
+$routes->post('/ruangan', 'Ruangan::save');
+$routes->get('/ruangan/edit/(:any)', 'Ruangan::edit/$1');
+$routes->put('/ruangan/(:any)', 'Ruangan::update/$1');
+$routes->delete('/ruangan/(:num)', 'Ruangan::delete/$1');
+
+// kategori
+$routes->get('/kategori', 'Kategori::index');
+$routes->get('/kategori/add', 'Kategori::create');
+$routes->post('/kategori', 'Kategori::save');
+$routes->get('/kategori/edit/(:any)', 'Kategori::edit/$1');
+$routes->put('/kategori/(:any)', 'Kategori::update/$1');
+$routes->delete('/kategori/(:num)', 'Kategori::delete/$1');
+
+// kategori
+$routes->get('/satuan', 'Satuan::index');
+$routes->get('/satuan/add', 'Satuan::create');
+$routes->post('/satuan', 'Satuan::save');
+$routes->get('/satuan/edit/(:any)', 'Satuan::edit/$1');
+$routes->put('/satuan/(:any)', 'Satuan::update/$1');
+$routes->delete('/satuan/(:num)', 'Satuan::delete/$1');
 
 // aset
 $routes->get('/aset', 'Aset::index');
@@ -81,11 +105,6 @@ $routes->get('/profile', 'Profile::index');
 $routes->post('/profile', 'Profile::editprofile');
 $routes->get('/profile/changepassword', 'Profile::changepassword');
 $routes->post('/profile/change', 'Profile::change');
-
-/**
- * REST API
- */
-$routes->resource('apiuser');
 
 /*
  * --------------------------------------------------------------------

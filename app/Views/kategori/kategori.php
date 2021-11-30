@@ -3,16 +3,16 @@
 <?= $this->section('content'); ?>
 <div class="container-fluid px-4">
     <h2 class="mt-4 mb-4"><?= $title; ?></h1>
-        <hr>
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="/super">Dashboard</a></li>
-            <li class="breadcrumb-item active" aria-current="page">Ruangan</li>
+        <ol class="breadcrumb mb-4" style="background-color: white;">
+            <li class="breadcrumb-item"><a href="/home">Dashboard</a></li>
+            <li class="breadcrumb-item active">Kategori</li>
         </ol>
+        <hr>
         <div class="row">
             <div class="col">
 
                 <div class="d-inline">
-                    <a href="/ruang/add" class="btn btn-primary"><i class="fas fa-door-open me-1"></i> Tambah ruangan</a>
+                    <a href="/kategori/add" class="btn btn-primary"><i class="fas fa-plus"></i> Tambah Kategori</a>
                 </div>
 
                 <!-- Alert Message -->
@@ -22,7 +22,7 @@
 
                 <div class="card mt-3">
                     <div class="card-header">
-                        Daftar Ruangan
+                        Daftar Kategori
                     </div>
                     <!-- Table -->
                     <div class="card-body shadow-lg">
@@ -31,35 +31,33 @@
                                 <thead>
                                     <tr>
                                         <th>No</th>
-                                        <th>Nama Ruangan</th>
-                                        <th>Lokasi Ruangan</th>
+                                        <th>Kode Kategori</th>
+                                        <th>Nama Kategori</th>
                                         <th>Aksi</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <?php $i = 1;
-                                    foreach ($ruang as $r) : ?>
+                                    foreach ($kategori as $k) : ?>
                                         <tr>
-                                            <td><?= $i++ ?></td>
-                                            <td><?= $r['kode']; ?></td>
-                                            <td><?= $r['nama']; ?></td>
+                                            <td><?= $i++; ?></td>
+                                            <td><?= $k['kode_kategori']; ?></td>
+                                            <td><?= $k['nama_kategori']; ?></td>
                                             <td>
-                                                <?php if (session()->get('role') == 1 || session()->get('role') == 2) : ?>
-                                                    <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#exampleModal<?= $r['id']; ?>">
-                                                        <i class="fas fa-trash"></i> Hapus
-                                                    </button>
-                                                <?php endif; ?>
-                                                <a href="/ruang/edit/<?= $r['kode']; ?>" class="btn btn-warning"><i class="fas fa-edit"></i> Edit</a>
+                                                <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#exampleModal<?= $k['id_kategori']; ?>">
+                                                    <i class="fas fa-trash"></i> Hapus
+                                                </button>
+                                                <a href="/kategori/edit/<?= $k['kode_kategori']; ?>" class="btn btn-warning"><i class="fas fa-edit"></i> Edit</a>
                                             </td>
                                         </tr>
 
                                         <!-- Modal -->
-                                        <div class="modal fade" id="exampleModal<?= $r['id']; ?>" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                        <div class="modal fade" id="exampleModal<?= $k['id_kategori'] ?>" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
                                             <div class="modal-dialog">
                                                 <div class="modal-content">
                                                     <div class="modal-header">
                                                         <h5 class="modal-title" id="exampleModalLabel">Peringatan</h5>
-                                                        <button type="button" class="close" aria-label="Close">
+                                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                                             <span aria-hidden="true" data-dismiss="modal">&times;</span>
                                                         </button>
                                                     </div>
@@ -67,7 +65,7 @@
                                                         Apakah data ini akan dihapus?
                                                     </div>
                                                     <div class="modal-footer">
-                                                        <form action="/ruang/<?= $r['id']; ?>" method="POST">
+                                                        <form action="/kategori/<?= $k['id_kategori']; ?>" method="post" class="d-inline">
                                                             <?= csrf_field(); ?>
                                                             <input type="hidden" name="_method" value="DELETE">
                                                             <button type="submit" class="btn btn-danger">Ya</button>

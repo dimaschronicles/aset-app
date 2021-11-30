@@ -22,7 +22,6 @@ class Filters extends BaseConfig
         'toolbar'  => DebugToolbar::class,
         'honeypot' => Honeypot::class,
         'isLoggedIn' => AuthFilter::class,
-        'otentikasi' => JwtFilter::class,
     ];
 
     /**
@@ -63,26 +62,14 @@ class Filters extends BaseConfig
      * @var array
      */
     public $filters = [
-        'otentikasi' => [
-            'before' => [
-                'apiuser',
-                'apiuser/*',
-                'apiaset',
-                'apiaset/*',
-                'apiruang',
-                'apiruang/*',
-                'apigedung',
-                'apigedung/*',
-            ]
-        ],
         'isLoggedIn' => [
             'before' => [
                 '/user',
                 '/user/*',
                 '/gedung',
                 '/gedung/*',
-                '/ruang',
-                '/ruang/*',
+                '/ruangan',
+                '/ruangan/*',
                 '/aset',
                 '/aset/*',
                 '/laporan',

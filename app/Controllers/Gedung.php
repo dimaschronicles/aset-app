@@ -35,7 +35,7 @@ class Gedung extends BaseController
         }
 
         $data = [
-            'title' => 'Data Gedung',
+            'title' => 'Tambah Data Gedung',
             'validation' => \Config\Services::validation(),
         ];
 
@@ -46,9 +46,10 @@ class Gedung extends BaseController
     {
         if (!$this->validate([
             'kode' => [
-                'rules' => 'trim|required',
+                'rules' => 'trim|required|is_unique[gedung.kode_gedung]',
                 'errors' => [
                     'required' => 'Kode Gedung harus diisi!',
+                    'is_unique' => 'Kode Gedung sudah terdaftar!',
                 ]
             ],
             'nama' => [
