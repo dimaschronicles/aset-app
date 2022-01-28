@@ -19,20 +19,7 @@
                     <form action="/barang/<?= $barang['id_barang']; ?>" method="POST">
                         <?= csrf_field(); ?>
                         <input type="hidden" name="_method" value="PUT">
-                        <div class="form-group row">
-                            <label for="kategori" class="col-sm-3 col-form-label">Kategori Barang</label>
-                            <div class="col-sm-9">
-                                <select name="kategori" id="kategori" class="form-control <?= ($validation->hasError('kategori')) ? 'is-invalid' : ''; ?>">
-                                    <option value="">===Pilih Kategori===</option>
-                                    <?php foreach ($kategori as $k) : ?>
-                                        <option value="<?= $k['id_kategori']; ?>" <?= ($barang['id_kategori'] == $k['id_kategori']) ? 'selected' : old('kategori'); ?>><?= $k['kode_kategori']; ?> - <?= $k['nama_kategori']; ?></option>
-                                    <?php endforeach; ?>
-                                </select>
-                                <div class="invalid-feedback">
-                                    <?= $validation->getError('kategori'); ?>
-                                </div>
-                            </div>
-                        </div>
+                        <input type="hidden" name="id_barang" id="id_barang" value="<?= $barang['id_barang']; ?>">
                         <div class="form-group row">
                             <label for="nama_barang" class="col-sm-3 col-form-label">Nama Barang</label>
                             <div class="col-sm-9">

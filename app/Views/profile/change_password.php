@@ -15,7 +15,7 @@
                     <div class="card-body">
                         <form action="/profile/change" method="POST">
                             <?= csrf_field(); ?>
-                            <input type="hidden" name="id" id="id" value="<?= $user['id']; ?>">
+                            <input type="hidden" name="id" id="id" value="<?= $user['id_user']; ?>">
                             <div class="form-group row">
                                 <label for="current_password" class="col-sm-3 col-form-label">Password Saat Ini</label>
                                 <div class="col-sm-9">

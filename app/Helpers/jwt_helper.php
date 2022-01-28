@@ -13,10 +13,10 @@ function getJWT($otentikasiHeader)
 
 function validateJWT($encodedToken)
 {
-    $key = getenv('JWT_SECRET_KEY');
-    $decodedToken = JWT::decode($encodedToken, $key, ['HS256']);
-    $modelOtentikasi = new OtentikasiModel();
-    $modelOtentikasi->getUsername($decodedToken->username);
+    // $key = getenv('JWT_SECRET_KEY');
+    // $decodedToken = JWT::decode($encodedToken, $key, ['HS256']);
+    // $modelOtentikasi = new OtentikasiModel();
+    // $modelOtentikasi->getUsername($decodedToken->username);
 }
 
 function createJWT($username)

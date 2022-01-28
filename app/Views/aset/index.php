@@ -3,205 +3,336 @@
 <?= $this->section('content'); ?>
 <div class="container-fluid px-4">
     <h2 class="mt-4 mb-4"><?= $title; ?></h2>
-    <hr>
-    <ol class="breadcrumb">
+    <ol class="breadcrumb mb-4" style="background-color: white;">
         <li class="breadcrumb-item"><a href="/home">Dashboard</a></li>
-        <li class="breadcrumb-item active" aria-current="page">Barang</li>
+        <li class="breadcrumb-item active">Aset</li>
     </ol>
+    <hr>
     <div class="row">
         <div class="col">
 
             <div class="d-inline">
                 <?php if (session()->get('role') == 1 || session()->get('role') == 2) : ?>
-                    <a href="/aset/add" class="btn btn-primary"><i class="fas fa-laptop me-1"></i> Tambah Barang</a>
-                    <a href="/aset/trash" class="btn btn-outline-danger"><i class="fas fa-trash-alt me-1"></i> Sampah</a>
-                    <a href="/aset/excel" class="btn btn-outline-success"><i class="fas fa-upload me-1"></i> Import Excel</a>
-                    <a href="/aset/templateexcel" class="ml-2"><i class="fas fa-download me-1"></i> Unduh Template Excel</a>
+                    <a href="/aset/add" class="btn btn-primary"><i class="fas fa-laptop me-1"></i> Tambah Aset</a>
+                    <a href="/report/asetpdf" class="btn btn-outline-danger" target="_blank"><i class="fas fa-file-pdf me-1"></i> Download PDF</a>
+                    <a href="/report/asetexcel" class="btn btn-outline-success" target="_blank"><i class="fas fa-file-excel me-1"></i> Download Excel</a>
+                    <a href="/report/asetqr" class="btn btn-outline-info" target="_blank"><i class="fas fa-qrcode me-1"></i> Download QR-Code</a>
                 <?php endif; ?>
             </div>
+
+            <form action="/aset" method="GET" class="form-inline mt-3">
+                <label class="my-1 mr-2" for="filter_kondisi">Filter by Kondisi</label>
+                <select class="custom-select my-1 mr-sm-2" name="filter_kondisi" id="filter_kondisi">
+                    <option value="">=== Pilih Kondisi ===</option>
+                    <option value="Baik" <?= (@$_GET['kondisi'] == 'Baik') ? 'selected' : ''; ?>>Baik</option>
+                    <option value="Kurang" <?= (@$_GET['kondisi'] == 'Kurang') ? 'selected' : ''; ?>>Kurang</option>
+                    <option value="Rusak" <?= (@$_GET['kondisi'] == 'Rusak') ? 'selected' : ''; ?>>Rusak</option>
+                </select>
+                <button type="submit" class="btn btn-primary my-1">Filter Data</button>
+            </form>
+
+            <!-- <div class="row">
+                <div class="col col-lg-auto">
+                    <form action="/aset" method="GET" class="form-inline mt-3">
+                        <label class="my-1 mr-2" for="filter_kondisi">Filter by Kondisi</label>
+                        <select class="custom-select my-1 mr-sm-2" name="filter_kondisi" id="filter_kondisi">
+                            <option value="">=== Pilih Kondisi ===</option>
+                            <option value="Baik" <?= (@$_GET['kondisi'] == 'Baik') ? 'selected' : ''; ?>>Baik</option>
+                            <option value="Kurang" <?= (@$_GET['kondisi'] == 'Kurang') ? 'selected' : ''; ?>>Kurang</option>
+                            <option value="Rusak" <?= (@$_GET['kondisi'] == 'Rusak') ? 'selected' : ''; ?>>Rusak</option>
+                        </select>
+                        <button type="submit" class="btn btn-primary my-1">Filter Data</button>
+                    </form>
+                </div>
+                <div class="col">
+                    <form action="/aset" method="GET" class="form-inline mt-3">
+                        <label class="my-1 mr-2" for="filter_kondisi">Filter by Ruangan</label>
+                        <select class="custom-select my-1 mr-sm-2" name="filter_kondisi" id="filter_kondisi">
+                            <option value="">=== Pilih Ruangan ===</option>
+                            <option value="Baik" <?= (@$_GET['kondisi'] == 'Baik') ? 'selected' : ''; ?>>Baik</option>
+                        </select>
+                        <button type="submit" class="btn btn-primary my-1">Filter Data</button>
+                    </form>
+                </div>
+            </div> -->
 
             <!-- Alert Message -->
             <div class="mt-3">
                 <?= session()->getFlashdata('message'); ?>
             </div>
 
-            <div class="card mt-3">
+            <div class="card mt-3 mb-3">
                 <div class="card-header">
-                    Daftar Barang
+                    Daftar Aset
                 </div>
                 <!-- Table -->
-                <div class="card-body shadow-lg">
-                    <div class="responsive">
-                        <table class="table table-bordered text-center" id="datatablesSimple">
-                            <thead>
-                                <tr>
-                                    <th>No</th>
-                                    <th>Kode Aset</th>
-                                    <th>Kondisi</th>
-                                    <th>Tanggal Pengadaan</th>
-                                    <th>Penginput</th>
-                                    <th>Aksi</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <?php $i = 1;
-                                foreach ($barang as $b) : ?>
+                <?php if ($filter_kondisi == null) : ?>
+                    <div class="card-body shadow-sm">
+                        <div class="responsive">
+                            <table class="table table-bordered text-center" id="datatablesSimple">
+                                <thead>
                                     <tr>
-                                        <td><?= $i++ ?></td>
-                                        <td><?= $b['kode_barang']; ?></td>
-                                        <td><?= $b['kondisi_aset']; ?></td>
-                                        <td><?= $b['tanggal_pengadaan']; ?></td>
-                                        <td><?= $b['user_penginput']; ?></td>
-                                        <td>
-                                            <?php if (session()->get('role') == 1 || session()->get('role') == 2) : ?>
-                                                <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#exampleModal<?= $b['id']; ?>">
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
-                                                <a href="/aset/edit/<?= $b['kode_barang']; ?>" class="btn btn-warning"><i class="fas fa-edit"></i></a>
-                                            <?php endif; ?>
-
-                                            <button type="button" class="btn btn-info" data-toggle="modal" data-target="#exampleModal<?= $b['nomor']; ?>">
-                                                <i class="fas fa-info-circle"></i>
-                                            </button>
-                                            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal<?= $b['kode_barang']; ?>">
-                                                <i class="fas fa-qrcode"></i>
-                                            </button>
-                                        </td>
+                                        <th>No</th>
+                                        <th>Kode Aset</th>
+                                        <th>Nama</th>
+                                        <th>Satuan</th>
+                                        <th>Kondisi</th>
+                                        <th>Jumlah</th>
+                                        <th>Nilai Aset</th>
+                                        <th>Aksi</th>
                                     </tr>
+                                </thead>
+                                <tbody>
+                                    <?php
+                                    $i = 1;
+                                    foreach ($aset as $a) : ?>
+                                        <tr>
+                                            <td><?= $i++; ?></td>
+                                            <td><?= $a['kode_aset']; ?></td>
+                                            <td><?= $a['nama_barang']; ?></td>
+                                            <td><?= $a['satuan']; ?></td>
+                                            <td><?= $a['kondisi']; ?></td>
+                                            <td><?= $a['jumlah']; ?></td>
+                                            <td>Rp. <?= number_format(intval($a['nilai_aset']), 0, ".", "."); ?></td>
+                                            <td>
+                                                <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#exampleModal<?= $a['id_aset']; ?>">
+                                                    <i class="fas fa-trash"></i> Hapus
+                                                </button>
+                                                <a href="/aset/edit/<?= $a['kode_aset']; ?>" class="btn btn-warning"><i class="fas fa-edit"></i> Edit</a>
+                                                <a href="/aset/detail/<?= $a['kode_aset']; ?>" class="btn btn-info" target="_blank"><i class="fas fa-info"></i> Detail</a>
+                                            </td>
+                                        </tr>
 
-                                    <!-- Modal Delete -->
-                                    <div class="modal fade" id="exampleModal<?= $b['id']; ?>" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                                        <div class="modal-dialog">
-                                            <div class="modal-content">
-                                                <div class="modal-header">
-                                                    <h5 class="modal-title" id="exampleModalLabel">Peringatan</h5>
-                                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                                        <span aria-hidden="true">&times;</span>
-                                                    </button>
-                                                </div>
-                                                <div class="modal-body">
-                                                    Apakah data ini akan dihapus?
-                                                </div>
-                                                <div class="modal-footer">
-                                                    <form action="/aset/<?= $b['id']; ?>" method="post" class="d-inline">
-                                                        <?= csrf_field(); ?>
-                                                        <input type="hidden" name="_method" value="DELETE">
-                                                        <button type="submit" class="btn btn-danger">Ya</button>
-                                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Tidak</button>
-                                                    </form>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- Modal Detail -->
-                                    <div class="modal fade" id="exampleModal<?= $b['nomor']; ?>" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                                        <div class="modal-dialog modal-lg">
-                                            <div class="modal-content">
-                                                <div class="modal-header">
-                                                    <h5 class="modal-title" id="exampleModalLabel">Detail Aset</h5>
-                                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                                        <span aria-hidden="true">&times;</span>
-                                                    </button>
-                                                </div>
-                                                <div class="modal-body">
-                                                    <div class="row">
-                                                        <div class="col-md-4">
-                                                            <p><b>Nomor</b></p>
-                                                            <p><b>Sub Nomor</b></p>
-                                                            <p><b>Satuan</b></p>
-                                                            <p><b>Kode Barang</b></p>
-                                                            <p><b>Tercatat</b></p>
-                                                            <p><b>No Aset</b></p>
-                                                            <p><b>Kode Lokasi</b></p>
-                                                            <p><b>Kode Perkap</b></p>
-                                                            <p><b>Kondisi Aset</b></p>
-                                                            <p><b>Uraian Aset</b></p>
-                                                            <p><b>Uraian Perkap</b></p>
-                                                            <p><b>Kode Ruang</b></p>
-                                                            <p><b>Uraian Ruang</b></p>
-                                                            <p><b>Catatan</b></p>
-                                                            <p><b>Kondisi</b></p>
-                                                            <p><b>Nominal</b></p>
-                                                            <p><b>Tanggal Pengadaan</b></p>
-                                                            <p><b>Sumber Pengadaan</b></p>
-                                                            <p><b>Foto</b></p>
-                                                        </div>
-                                                        <div class="col-md-2">
-                                                            <p><b>:</b></p>
-                                                            <p><b>:</b></p>
-                                                            <p><b>:</b></p>
-                                                            <p><b>:</b></p>
-                                                            <p><b>:</b></p>
-                                                            <p><b>:</b></p>
-                                                            <p><b>:</b></p>
-                                                            <p><b>:</b></p>
-                                                            <p><b>:</b></p>
-                                                            <p><b>:</b></p>
-                                                            <p><b>:</b></p>
-                                                            <p><b>:</b></p>
-                                                            <p><b>:</b></p>
-                                                            <p><b>:</b></p>
-                                                            <p><b>:</b></p>
-                                                            <p><b>:</b></p>
-                                                            <p><b>:</b></p>
-                                                            <p><b>:</b></p>
-                                                            <p><b>:</b></p>
-                                                        </div>
-                                                        <div class="col-md-6">
-                                                            <p><?= $b['nomor']; ?></p>
-                                                            <p><?= $b['sub_nomor']; ?></p>
-                                                            <p><?= $b['satuan']; ?></p>
-                                                            <p><?= $b['kode_barang']; ?></p>
-                                                            <p><?= $b['tercatat']; ?></p>
-                                                            <p><?= $b['no_aset']; ?></p>
-                                                            <p><?= $b['kode_lokasi']; ?></p>
-                                                            <p><?= $b['kode_perkap']; ?></p>
-                                                            <p><?= $b['kondisi_aset']; ?></p>
-                                                            <p><?= $b['uraian_aset']; ?></p>
-                                                            <p><?= $b['uraian_perkap']; ?></p>
-                                                            <p><?= $b['kode_ruang']; ?></p>
-                                                            <p><?= $b['uraian_ruang']; ?></p>
-                                                            <p><?= $b['catatan']; ?></p>
-                                                            <p><?= $b['kondisi']; ?></p>
-                                                            <p><?= $b['nominal_aset']; ?></p>
-                                                            <p><?= $b['tanggal_pengadaan']; ?></p>
-                                                            <p><?= $b['sumber_pengadaan']; ?></p>
-                                                            <img src="/img/aset/<?= $b['foto']; ?>" alt="<?= $b['kode_barang']; ?>" width="300px" class="img-thumbnail">
-                                                        </div>
+                                        <!-- Modal -->
+                                        <div class="modal fade" id="exampleModal<?= $a['id_aset'] ?>" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                            <div class="modal-dialog">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <!-- <h5 class="modal-title" id="exampleModalLabel">Peringatan! Data Ini Akan Dihapus?</h5> -->
+                                                        <h5 class="modal-title" id="exampleModalLabel">Peringatan</h5>
+                                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                            <span aria-hidden="true" data-dismiss="modal">&times;</span>
+                                                        </button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <!-- Dengan menghapus, semua data aset keluar dan aset masuk yang berhubungan dengan aset ini akan ikut dihapus. -->
+                                                        Apakah data ini akan dihapus?
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <form action="/aset/delete/<?= $a['id_aset']; ?>" method="post" class="d-inline">
+                                                            <?= csrf_field(); ?>
+                                                            <!-- <input type="hidden" name="_method" value="DELETE"> -->
+                                                            <button type="submit" class="btn btn-danger">Ya</button>
+                                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Tidak</button>
+                                                        </form>
                                                     </div>
                                                 </div>
-                                                <div class="modal-footer">
-                                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>
-                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-
-                                    <!-- Modal QR -->
-                                    <div class="modal fade" id="exampleModal<?= $b['kode_barang']; ?>" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                                        <div class="modal-dialog">
-                                            <div class="modal-content">
-                                                <div class="modal-header">
-                                                    <h5 class="modal-title" id="exampleModalLabel">QR Code</h5>
-                                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                                        <span aria-hidden="true">&times;</span>
-                                                    </button>
-                                                </div>
-                                                <div class="modal-body">
-                                                    <img src="/img/aset/qr/<?= $b['qr_code']; ?>" alt="" class="rounded mx-auto d-block">
-                                                </div>
-                                                <div class="modal-footer">
-                                                    <button type="button" class="btn btn-primary" data-dismiss="modal">Tutup</button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                <?php endforeach; ?>
-                            </tbody>
-                        </table>
+                                    <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
-                </div>
+                <?php elseif ($filter_kondisi == 'Baik') : ?>
+                    <div class="card-body shadow-sm">
+                        <div class="responsive">
+                            <table class="table table-bordered text-center" id="datatablesSimple">
+                                <thead>
+                                    <tr>
+                                        <th>No</th>
+                                        <th>Kode Aset</th>
+                                        <th>Nama</th>
+                                        <th>Satuan</th>
+                                        <th>Kondisi</th>
+                                        <th>Jumlah</th>
+                                        <th>Nilai Aset</th>
+                                        <th>Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php
+                                    $i = 1;
+                                    foreach ($aset as $a) : ?>
+                                        <tr>
+                                            <td><?= $i++; ?></td>
+                                            <td><?= $a['kode_aset']; ?></td>
+                                            <td><?= $a['nama_barang']; ?></td>
+                                            <td><?= $a['satuan']; ?></td>
+                                            <td><?= $a['kondisi']; ?></td>
+                                            <td><?= $a['jumlah']; ?></td>
+                                            <td>Rp. <?= number_format(intval($a['nilai_aset']), 0, ".", "."); ?></td>
+                                            <td>
+                                                <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#exampleModal<?= $a['id_aset']; ?>">
+                                                    <i class="fas fa-trash"></i> Hapus
+                                                </button>
+                                                <a href="/aset/edit/<?= $a['kode_aset']; ?>" class="btn btn-warning"><i class="fas fa-edit"></i> Edit</a>
+                                                <a href="/aset/detail/<?= $a['kode_aset']; ?>" class="btn btn-info" target="_blank"><i class="fas fa-info"></i> Detail</a>
+                                            </td>
+                                        </tr>
+
+                                        <!-- Modal -->
+                                        <div class="modal fade" id="exampleModal<?= $a['id_aset'] ?>" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                            <div class="modal-dialog">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title" id="exampleModalLabel">Peringatan! Data Ini Akan Dihapus?</h5>
+                                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                            <span aria-hidden="true" data-dismiss="modal">&times;</span>
+                                                        </button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        Dengan menghapus, semua data aset keluar dan aset masuk yang berhubungan dengan aset ini akan ikut dihapus.
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <form action="/aset/<?= $a['id_aset']; ?>" method="post" class="d-inline">
+                                                            <?= csrf_field(); ?>
+                                                            <input type="hidden" name="_method" value="DELETE">
+                                                            <button type="submit" class="btn btn-danger">Ya</button>
+                                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Tidak</button>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                <?php elseif ($filter_kondisi == 'Kurang') : ?>
+                    <div class="card-body shadow-sm">
+                        <div class="responsive">
+                            <table class="table table-bordered text-center" id="datatablesSimple">
+                                <thead>
+                                    <tr>
+                                        <th>No</th>
+                                        <th>Kode Aset</th>
+                                        <th>Nama</th>
+                                        <th>Satuan</th>
+                                        <th>Kondisi</th>
+                                        <th>Jumlah</th>
+                                        <th>Nilai Aset</th>
+                                        <th>Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php
+                                    $i = 1;
+                                    foreach ($aset as $a) : ?>
+                                        <tr>
+                                            <td><?= $i++; ?></td>
+                                            <td><?= $a['kode_aset']; ?></td>
+                                            <td><?= $a['nama_barang']; ?></td>
+                                            <td><?= $a['satuan']; ?></td>
+                                            <td><?= $a['kondisi']; ?></td>
+                                            <td><?= $a['jumlah']; ?></td>
+                                            <td>Rp. <?= number_format(intval($a['nilai_aset']), 0, ".", "."); ?></td>
+                                            <td>
+                                                <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#exampleModal<?= $a['id_aset']; ?>">
+                                                    <i class="fas fa-trash"></i> Hapus
+                                                </button>
+                                                <a href="/aset/edit/<?= $a['kode_aset']; ?>" class="btn btn-warning"><i class="fas fa-edit"></i> Edit</a>
+                                                <a href="/aset/detail/<?= $a['kode_aset']; ?>" class="btn btn-info" target="_blank"><i class="fas fa-info"></i> Detail</a>
+                                            </td>
+                                        </tr>
+
+                                        <!-- Modal -->
+                                        <div class="modal fade" id="exampleModal<?= $a['id_aset'] ?>" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                            <div class="modal-dialog">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title" id="exampleModalLabel">Peringatan! Data Ini Akan Dihapus?</h5>
+                                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                            <span aria-hidden="true" data-dismiss="modal">&times;</span>
+                                                        </button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        Dengan menghapus, semua data aset keluar dan aset masuk yang berhubungan dengan aset ini akan ikut dihapus.
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <form action="/aset/<?= $a['id_aset']; ?>" method="post" class="d-inline">
+                                                            <?= csrf_field(); ?>
+                                                            <input type="hidden" name="_method" value="DELETE">
+                                                            <button type="submit" class="btn btn-danger">Ya</button>
+                                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Tidak</button>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                <?php elseif ($filter_kondisi == 'Rusak') : ?>
+                    <div class="card-body shadow-sm">
+                        <div class="responsive">
+                            <table class="table table-bordered text-center" id="datatablesSimple">
+                                <thead>
+                                    <tr>
+                                        <th>No</th>
+                                        <th>Kode Aset</th>
+                                        <th>Nama</th>
+                                        <th>Satuan</th>
+                                        <th>Kondisi</th>
+                                        <th>Jumlah</th>
+                                        <th>Nilai Aset</th>
+                                        <th>Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php
+                                    $i = 1;
+                                    foreach ($aset as $a) : ?>
+                                        <tr>
+                                            <td><?= $i++; ?></td>
+                                            <td><?= $a['kode_aset']; ?></td>
+                                            <td><?= $a['nama_barang']; ?></td>
+                                            <td><?= $a['satuan']; ?></td>
+                                            <td><?= $a['kondisi']; ?></td>
+                                            <td><?= $a['jumlah']; ?></td>
+                                            <td>Rp. <?= number_format(intval($a['nilai_aset']), 0, ".", "."); ?></td>
+                                            <td>
+                                                <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#exampleModal<?= $a['id_aset']; ?>">
+                                                    <i class="fas fa-trash"></i> Hapus
+                                                </button>
+                                                <a href="/aset/edit/<?= $a['kode_aset']; ?>" class="btn btn-warning"><i class="fas fa-edit"></i> Edit</a>
+                                                <a href="/aset/detail/<?= $a['kode_aset']; ?>" class="btn btn-info" target="_blank"><i class="fas fa-info"></i> Detail</a>
+                                            </td>
+                                        </tr>
+
+                                        <!-- Modal -->
+                                        <div class="modal fade" id="exampleModal<?= $a['id_aset'] ?>" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                            <div class="modal-dialog">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title" id="exampleModalLabel">Peringatan! Data Ini Akan Dihapus?</h5>
+                                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                            <span aria-hidden="true" data-dismiss="modal">&times;</span>
+                                                        </button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        Dengan menghapus, semua data aset keluar dan aset masuk yang berhubungan dengan aset ini akan ikut dihapus.
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <form action="/aset/<?= $a['id_aset']; ?>" method="post" class="d-inline">
+                                                            <?= csrf_field(); ?>
+                                                            <input type="hidden" name="_method" value="DELETE">
+                                                            <button type="submit" class="btn btn-danger">Ya</button>
+                                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Tidak</button>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                <?php endif; ?>
             </div>
         </div>
     </div>

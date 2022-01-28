@@ -4,8 +4,13 @@ namespace App\Controllers;
 
 use App\Models\AsetModel;
 use App\Models\UserModel;
+use App\Models\RuangModel;
 use Endroid\QrCode\QrCode;
+use App\Models\BarangModel;
+use App\Models\GedungModel;
+use App\Models\KategoriModel;
 use App\Controllers\BaseController;
+use App\Models\SupplierModel;
 use Endroid\QrCode\Writer\PngWriter;
 use PhpOffice\PhpSpreadsheet\Reader\Xls;
 use PhpOffice\PhpSpreadsheet\Reader\Xlsx;
@@ -13,22 +18,37 @@ use PhpOffice\PhpSpreadsheet\Spreadsheet;
 
 class Aset extends BaseController
 {
-    protected $userModel;
-    protected $asetModel;
-
     public function __construct()
     {
-        $this->userModel = new UserModel();
-        $this->asetModel = new AsetModel();
+        $this->user = new UserModel();
+        $this->aset = new AsetModel();
+        $this->barang = new BarangModel();
+        $this->kategori = new KategoriModel();
+        $this->supplier = new SupplierModel();
+        $this->gedung = new GedungModel();
+        $this->ruangan = new RuangModel();
 
         helper('form');
     }
 
     public function index()
     {
+        $filter_aset = $this->request->getVar('filter_kondisi');
+
+        if ($filter_aset == null) {
+            $hasil = $this->aset->getAllAset();
+        } elseif ($filter_aset == 'Baik') {
+            $hasil = $this->aset->getAllAset($filter_aset);
+        } elseif ($filter_aset == 'Kurang') {
+            $hasil = $this->aset->getAllAset($filter_aset);
+        } elseif ($filter_aset == 'Rusak') {
+            $hasil = $this->aset->getAllAset($filter_aset);
+        }
+
         $data = [
             'title' => 'Data Aset',
-            'barang' => $this->asetModel->findAll(),
+            'aset' => $hasil,
+            'filter_kondisi' => $filter_aset,
         ];
 
         return view('aset/index', $data);
@@ -40,10 +60,25 @@ class Aset extends BaseController
             return redirect()->to('home');
         }
 
+        $kode = $this->db->table('aset')->selectMax('id_aset')->get()->getResultArray();
+        $kodeAset = $kode[0]['id_aset'];
+        $urutan = intval($kodeAset);
+        $urutan++;
+        $huruf = "KDA";
+        $kode_aset = $huruf . sprintf("%04s", $urutan);
+
         $data = [
             'title' => 'Tambah Data Aset',
             'validation' => \Config\Services::validation(),
-            // 'user' => $this->userModel->where('nik', session()->get('nik'))->first(),
+            'user' => session()->get('nama'),
+            'kategori' => $this->kategori->findAll(),
+            'barang' => $this->barang->findAll(),
+            'supplier' => $this->supplier->findAll(),
+            'gedung' => $this->aset->getGedung(),
+            'ruangan' => $this->aset->getRuangan(),
+            'gedung_selected' => '',
+            'ruangan_selected' => '',
+            'kode_aset' => $kode_aset,
         ];
 
         return view('aset/add', $data);
@@ -52,124 +87,79 @@ class Aset extends BaseController
     public function save()
     {
         if (!$this->validate([
-            'nomor' => [
-                'rules' => 'trim|required|numeric',
+            'kode_aset' => [
+                'rules' => 'trim|required',
                 'errors' => [
-                    'required' => 'Nomor Barang harus diisi!',
-                    'numeric' => 'Nomor Barang harus berupa angka!'
+                    'required' => 'Kode Aset harus diisi!',
                 ]
             ],
-            'sub_nomor' => [
+            'nama_aset' => [
+                'rules' => 'trim|required',
+                'errors' => [
+                    'required' => 'Nama Aset harus diisi!',
+                ]
+            ],
+            'kategori' => [
+                'rules' => 'trim|required',
+                'errors' => [
+                    'required' => 'Kategori harus diisi!',
+                ]
+            ],
+            'jumlah' => [
                 'rules' => 'trim|required|numeric',
                 'errors' => [
-                    'required' => 'Sub Nomor Barang harus diisi!',
-                    'numeric' => 'Sub Nomor Barang harus berupa angka!'
+                    'required' => 'Jumlah harus diisi!',
+                    'numeric' => 'Jumlah harus angka!',
                 ]
             ],
             'satuan' => [
                 'rules' => 'trim|required',
                 'errors' => [
-                    'required' => 'Satuan Barang harus diisi!',
-                ]
-            ],
-            'kode_barang' => [
-                'rules' => 'trim|required',
-                'errors' => [
-                    'required' => 'Kode Barang harus diisi!',
-                ]
-            ],
-            'no_aset' => [
-                'rules' => 'trim|required|numeric',
-                'errors' => [
-                    'required' => 'Nomor Aset harus diisi!',
-                    'numeric' => 'Nomor Aset harus berupa angka!'
-                ]
-            ],
-            'tercatat' => [
-                'rules' => 'trim|required',
-                'errors' => [
-                    'required' => 'Tercatat harus diisi!',
-                ]
-            ],
-            'kode_lokasi' => [
-                'rules' => 'trim|required',
-                'errors' => [
-                    'required' => 'Kode Lokasi harus diisi!',
-                ]
-            ],
-            'kode_perkap' => [
-                'rules' => 'trim|required',
-                'errors' => [
-                    'required' => 'Kode Perkap harus diisi!',
-                ]
-            ],
-            'kondisi_aset' => [
-                'rules' => 'trim|required',
-                'errors' => [
-                    'required' => 'Kondisi Aset harus diisi!',
-                ]
-            ],
-            'uraian_aset' => [
-                'rules' => 'trim|required',
-                'errors' => [
-                    'required' => 'Uraian Aset harus diisi!',
-                ]
-            ],
-            'uraian_perkap' => [
-                'rules' => 'trim|required',
-                'errors' => [
-                    'required' => 'Uraian Perkap harus diisi!',
-                ]
-            ],
-            'kode_ruang' => [
-                'rules' => 'trim|required',
-                'errors' => [
-                    'required' => 'Kode Ruang harus diisi!',
-                ]
-            ],
-            'uraian_ruang' => [
-                'rules' => 'trim|required',
-                'errors' => [
-                    'required' => 'Uraian Ruang harus diisi!',
-                ]
-            ],
-            'nominal_aset' => [
-                'rules' => 'trim|required',
-                'errors' => [
-                    'required' => 'Nominal Aset harus diisi!',
-                    'numeric' => 'Nominal Aset harus berupa angka!'
+                    'required' => 'Satuan harus diisi!',
                 ]
             ],
             'kondisi' => [
                 'rules' => 'trim|required',
                 'errors' => [
-                    'required' => 'Kondisi Barang harus diisi!',
+                    'required' => 'Kondisi harus diisi!',
                 ]
             ],
-            'catatan' => [
+            'nilai_aset' => [
                 'rules' => 'trim|required',
                 'errors' => [
-                    'required' => 'Catatan harus diisi!',
+                    'required' => 'Nilai Aset harus diisi!',
                 ]
             ],
-            'nominal_aset' => [
+            'gedung' => [
                 'rules' => 'trim|required',
                 'errors' => [
-                    'required' => 'Nominal harus diisi!',
+                    'required' => 'Gedung harus diisi!',
                 ]
             ],
-            'sumber_pengadaan' => [
+            'ruangan' => [
+                'rules' => 'trim|required',
+                'errors' => [
+                    'required' => 'Ruangan harus diisi!',
+                ]
+            ],
+            'sumber' => [
                 'rules' => 'trim|required',
                 'errors' => [
                     'required' => 'Sumber Pengadaan harus diisi!',
                 ]
             ],
-            'tanggal_pengadaan' => [
+            'keterangan' => [
                 'rules' => 'trim|required',
                 'errors' => [
-                    'required' => 'Tanggal Pengadaan harus diisi!',
+                    'required' => 'Keterangan harus diisi!',
                 ]
             ],
+            // 'tanggal_masuk' => [
+            //     'rules' => 'trim|required',
+            //     'errors' => [
+            //         'required' => 'Tanggal Masuk harus diisi!',
+            //     ]
+            // ],
             'image' => [
                 'rules' => 'max_size[image,2048]|is_image[image]|mime_in[image,image/png,image/jpg,image/jpeg]',
                 'errors' => [
@@ -194,7 +184,7 @@ class Aset extends BaseController
                 ->save(FCPATH . '/img/aset/' . $namaFoto);
         }
 
-        $kode = $this->request->getVar('kode_barang');
+        $kode = $this->request->getVar('kode_aset');
 
         $writer = new PngWriter();
         $qrCode = QrCode::create($kode)->setSize(300);
@@ -202,28 +192,29 @@ class Aset extends BaseController
         header('Content-Type: ' . $result->getMimeType());
         $result->saveToFile(FCPATH . '/img/aset/qr/' . $qrCode->getData() . '.png');
 
-        $this->asetModel->save([
-            'nomor' => $this->request->getVar('nomor'),
-            'sub_nomor' => $this->request->getVar('sub_nomor'),
+        $nilai = $this->request->getVar('nilai_aset');
+        $resultNilai = preg_replace("/[^0-9]/", "", $nilai);
+        $jumlah = $this->request->getVar('jumlah');
+        $total = intval($resultNilai) * $jumlah;
+
+        $this->aset->save([
+            'kode_aset' => $kode,
+            'id_barang' => $this->request->getVar('nama_aset'),
+            'id_kategori' => $this->request->getVar('kategori'),
+            'jumlah' => $jumlah,
             'satuan' => $this->request->getVar('satuan'),
-            'kode_barang' => $kode,
-            'no_aset' => $this->request->getVar('no_aset'),
-            'tercatat' => $this->request->getVar('tercatat'),
-            'kode_lokasi' => $this->request->getVar('kode_lokasi'),
-            'kode_perkap' => $this->request->getVar('kode_perkap'),
-            'kondisi_aset' => $this->request->getVar('kondisi_aset'),
-            'uraian_aset' => $this->request->getVar('uraian_aset'),
-            'uraian_perkap' => $this->request->getVar('uraian_perkap'),
-            'kode_ruang' => $this->request->getVar('kode_ruang'),
-            'uraian_ruang' => $this->request->getVar('uraian_ruang'),
-            'nominal_aset' => $this->request->getVar('nominal_aset'),
             'kondisi' => $this->request->getVar('kondisi'),
-            'catatan' => $this->request->getVar('catatan'),
-            'sumber_pengadaan' => $this->request->getVar('sumber_pengadaan'),
-            'tanggal_pengadaan' => $this->request->getVar('tanggal_pengadaan'),
-            'user_penginput' => session()->get('name'),
+            'id_gedung' => $this->request->getVar('gedung'),
+            'id_ruangan' => $this->request->getVar('ruangan'),
+            'nilai_aset' => $resultNilai,
+            'total_aset' => strval($total),
+            'keterangan' => $this->request->getVar('keterangan'),
+            // 'tanggal_masuk' => $this->request->getVar('tanggal_masuk'),
+            'id_supplier' => $this->request->getVar('sumber'),
             'qr_code' => $qrCode->getData() . '.png',
             'foto' => $namaFoto,
+            'status' => 'Aktif',
+            'user_penginput' => $this->request->getVar('user_penginput'),
         ]);
 
         session()->setFlashdata('message', '<div class="alert alert-success">Data <strong>aset</strong> berhasil ditambahkan!</div>');
@@ -240,8 +231,15 @@ class Aset extends BaseController
         $data = [
             'title' => 'Ubah Data Aset',
             'validation' => \Config\Services::validation(),
-            'barang' => $this->asetModel->where('kode_barang', $kode_barang)->first(),
-            'user' => $this->userModel->where('name', session()->get('name'))->first(),
+            'user' => session()->get('nama'),
+            'aset' => $this->aset->getAset($kode_barang),
+            'kategori' => $this->kategori->findAll(),
+            'barang' => $this->barang->findAll(),
+            'supplier' => $this->supplier->findAll(),
+            'gedung' => $this->aset->getGedung(),
+            'ruangan' => $this->aset->getRuangan(),
+            'gedung_selected' => '',
+            'ruangan_selected' => '',
         ];
 
         return view('aset/edit', $data);
@@ -250,124 +248,79 @@ class Aset extends BaseController
     public function update($id)
     {
         if (!$this->validate([
-            'nomor' => [
-                'rules' => 'trim|required|numeric',
+            'kode_aset' => [
+                'rules' => 'trim|required',
                 'errors' => [
-                    'required' => 'Nomor Barang harus diisi!',
-                    'numeric' => 'Nomor Barang harus berupa angka!'
+                    'required' => 'Kode Aset harus diisi!',
                 ]
             ],
-            'sub_nomor' => [
+            'nama_aset' => [
+                'rules' => 'trim|required',
+                'errors' => [
+                    'required' => 'Nama Aset harus diisi!',
+                ]
+            ],
+            'kategori' => [
+                'rules' => 'trim|required',
+                'errors' => [
+                    'required' => 'Kategori harus diisi!',
+                ]
+            ],
+            'jumlah' => [
                 'rules' => 'trim|required|numeric',
                 'errors' => [
-                    'required' => 'Sub Nomor Barang harus diisi!',
-                    'numeric' => 'Sub Nomor Barang harus berupa angka!'
+                    'required' => 'Jumlah harus diisi!',
+                    'numeric' => 'Jumlah harus angka!',
                 ]
             ],
             'satuan' => [
                 'rules' => 'trim|required',
                 'errors' => [
-                    'required' => 'Satuan Barang harus diisi!',
-                ]
-            ],
-            'kode_barang' => [
-                'rules' => 'trim|required',
-                'errors' => [
-                    'required' => 'Kode Barang harus diisi!',
-                ]
-            ],
-            'no_aset' => [
-                'rules' => 'trim|required|numeric',
-                'errors' => [
-                    'required' => 'Nomor Aset harus diisi!',
-                    'numeric' => 'Nomor Aset harus berupa angka!'
-                ]
-            ],
-            'tercatat' => [
-                'rules' => 'trim|required',
-                'errors' => [
-                    'required' => 'Tercatat harus diisi!',
-                ]
-            ],
-            'kode_lokasi' => [
-                'rules' => 'trim|required',
-                'errors' => [
-                    'required' => 'Kode Lokasi harus diisi!',
-                ]
-            ],
-            'kode_perkap' => [
-                'rules' => 'trim|required',
-                'errors' => [
-                    'required' => 'Kode Perkap harus diisi!',
-                ]
-            ],
-            'kondisi_aset' => [
-                'rules' => 'trim|required',
-                'errors' => [
-                    'required' => 'Kondisi Barang harus diisi!',
-                ]
-            ],
-            'uraian_aset' => [
-                'rules' => 'trim|required',
-                'errors' => [
-                    'required' => 'Uraian Aset harus diisi!',
-                ]
-            ],
-            'uraian_perkap' => [
-                'rules' => 'trim|required',
-                'errors' => [
-                    'required' => 'Uraian Perkap harus diisi!',
-                ]
-            ],
-            'kode_ruang' => [
-                'rules' => 'trim|required',
-                'errors' => [
-                    'required' => 'Kode Ruang harus diisi!',
-                ]
-            ],
-            'uraian_ruang' => [
-                'rules' => 'trim|required',
-                'errors' => [
-                    'required' => 'Uraian Ruang harus diisi!',
-                ]
-            ],
-            'nominal_aset' => [
-                'rules' => 'trim|required',
-                'errors' => [
-                    'required' => 'Nominal Aset harus diisi!',
-                    'numeric' => 'Nominal Aset harus berupa angka!'
+                    'required' => 'Satuan harus diisi!',
                 ]
             ],
             'kondisi' => [
                 'rules' => 'trim|required',
                 'errors' => [
-                    'required' => 'Kondisi Barang harus diisi!',
+                    'required' => 'Kondisi harus diisi!',
                 ]
             ],
-            'catatan' => [
+            'nilai_aset' => [
                 'rules' => 'trim|required',
                 'errors' => [
-                    'required' => 'Catatan harus diisi!',
+                    'required' => 'Nilai Aset harus diisi!',
                 ]
             ],
-            'nominal_aset' => [
+            'gedung' => [
                 'rules' => 'trim|required',
                 'errors' => [
-                    'required' => 'Nominal harus diisi!',
+                    'required' => 'Gedung harus diisi!',
                 ]
             ],
-            'sumber_pengadaan' => [
+            'ruangan' => [
+                'rules' => 'trim|required',
+                'errors' => [
+                    'required' => 'Ruangan harus diisi!',
+                ]
+            ],
+            'sumber' => [
                 'rules' => 'trim|required',
                 'errors' => [
                     'required' => 'Sumber Pengadaan harus diisi!',
                 ]
             ],
-            'tanggal_pengadaan' => [
+            'keterangan' => [
                 'rules' => 'trim|required',
                 'errors' => [
-                    'required' => 'Tanggal Pengadaan harus diisi!',
+                    'required' => 'Keterangan harus diisi!',
                 ]
             ],
+            // 'tanggal_masuk' => [
+            //     'rules' => 'trim|required',
+            //     'errors' => [
+            //         'required' => 'Tanggal Masuk harus diisi!',
+            //     ]
+            // ],
             'image' => [
                 'rules' => 'max_size[image,2048]|is_image[image]|mime_in[image,image/png,image/jpg,image/jpeg]',
                 'errors' => [
@@ -377,7 +330,7 @@ class Aset extends BaseController
                 ]
             ]
         ])) {
-            return redirect()->to('/aset/edit/' . $this->request->getVar('kode_barang'))->withInput();
+            return redirect()->to('/aset/edit/' . $this->request->getVar('kode_aset'))->withInput();
         }
 
         $fileFoto = $this->request->getFile('image');
@@ -398,7 +351,7 @@ class Aset extends BaseController
             }
         }
 
-        $kode = $this->request->getVar('kode_barang');
+        $kode = $this->request->getVar('kode_aset');
 
         $writer = new PngWriter();
         $qrCode = QrCode::create($kode)->setSize(300);
@@ -406,29 +359,30 @@ class Aset extends BaseController
         header('Content-Type: ' . $result->getMimeType());
         $result->saveToFile(FCPATH . '/img/aset/qr/' . $qrCode->getData() . '.png');
 
-        $this->asetModel->save([
-            'id' => $id,
-            'nomor' => $this->request->getVar('nomor'),
-            'sub_nomor' => $this->request->getVar('sub_nomor'),
+        $nilai = $this->request->getVar('nilai_aset');
+        $resultNilai = preg_replace("/[^0-9]/", "", $nilai);
+        $jumlah = $this->request->getVar('jumlah');
+        $total = intval($resultNilai) * $jumlah;
+
+        $this->aset->save([
+            'id_aset' => $id,
+            'kode_aset' => $kode,
+            'id_barang' => $this->request->getVar('nama_aset'),
+            'id_kategori' => $this->request->getVar('kategori'),
+            'jumlah' => $jumlah,
             'satuan' => $this->request->getVar('satuan'),
-            'kode_barang' => $kode,
-            'no_aset' => $this->request->getVar('no_aset'),
-            'tercatat' => $this->request->getVar('tercatat'),
-            'kode_lokasi' => $this->request->getVar('kode_lokasi'),
-            'kode_perkap' => $this->request->getVar('kode_perkap'),
-            'kondisi_aset' => $this->request->getVar('kondisi_aset'),
-            'uraian_aset' => $this->request->getVar('uraian_aset'),
-            'uraian_perkap' => $this->request->getVar('uraian_perkap'),
-            'kode_ruang' => $this->request->getVar('kode_ruang'),
-            'uraian_ruang' => $this->request->getVar('uraian_ruang'),
-            'nominal_aset' => $this->request->getVar('nominal_aset'),
             'kondisi' => $this->request->getVar('kondisi'),
-            'catatan' => $this->request->getVar('catatan'),
-            'sumber_pengadaan' => $this->request->getVar('sumber_pengadaan'),
-            'tanggal_pengadaan' => $this->request->getVar('tanggal_pengadaan'),
-            'user_penginput' => session()->get('name'),
+            'id_gedung' => $this->request->getVar('gedung'),
+            'id_ruangan' => $this->request->getVar('ruangan'),
+            'nilai_aset' => $resultNilai,
+            'total_aset' => strval($total),
+            'keterangan' => $this->request->getVar('keterangan'),
+            // 'tanggal_masuk' => $this->request->getVar('tanggal_masuk'),
+            'id_supplier' => $this->request->getVar('sumber'),
             'qr_code' => $qrCode->getData() . '.png',
             'foto' => $namaFoto,
+            'status' => 'Aktif',
+            'user_penginput' => $this->request->getVar('user_penginput'),
         ]);
 
         session()->setFlashdata('message', '<div class="alert alert-success">Data <strong>aset</strong> berhasil diubah!</div>');
@@ -438,9 +392,28 @@ class Aset extends BaseController
 
     public function delete($id)
     {
-        $this->asetModel->delete($id);
+        $this->aset->save([
+            'id_aset' => $id,
+            'status' => 'Non Aktif'
+        ]);
+
         session()->setFlashdata('message', '<div class="alert alert-success">Data <strong>aset</strong> berhasil dihapus!</div>');
         return redirect()->to('/aset');
+    }
+
+    public function detail($kode_aset)
+    {
+        if (session('role') == 3) {
+            return redirect()->to('home');
+        }
+
+        $data = [
+            'title' => 'Detail Data Aset',
+            'validation' => \Config\Services::validation(),
+            'aset' => $this->aset->getAset($kode_aset),
+        ];
+
+        return view('aset/detail', $data);
     }
 
     public function trash()
@@ -450,35 +423,37 @@ class Aset extends BaseController
         }
 
         $data = [
-            'title' => 'Sampah Aset',
-            'barang' => $this->asetModel->onlyDeleted()->findAll(),
+            'title' => 'Data Aset Dihapus',
+            'aset' => $this->aset->getAllAsetNon(),
         ];
 
         return view('aset/trash', $data);
     }
 
-    public function restore($kode)
+    public function restore($id)
     {
-        $builder = $this->db->table('barang');
-        $builder->set('deleted_at', null, true)->where(['id' => $kode])->update();
+        $this->aset->save([
+            'id_aset' => $id,
+            'status' => 'Aktif'
+        ]);
         session()->setFlashdata('message', '<div class="alert alert-success">Data <strong>aset</strong> berhasil direstore!</div>');
         return redirect()->to('/aset');
     }
 
     public function destroy($kode)
     {
-        $barang = $this->db->table('barang')->get()->getRowArray();
+        $barang = $this->db->table('aset')->where('kode_aset', $kode)->get()->getRowArray();
 
         if ($barang['foto'] != 'default.jpg') {
             unlink('img/aset/' . $barang['foto']);
         }
 
-        if ($barang['qr_code'] || $barang['qr_code'] == null) {
+        if ($barang['qr_code'] == true || $barang['qr_code'] == null) {
             unlink('img/aset/qr/' . $barang['qr_code']);
         }
 
-        $builder = $this->db->table('barang');
-        $builder->delete(['kode_barang' => $kode]);
+        $builder = $this->db->table('aset');
+        $builder->delete(['kode_aset' => $kode]);
         session()->setFlashdata('message', '<div class="alert alert-success">Data <strong>aset</strong> berhasil dihapus permanen!</div>');
         return redirect()->to('/aset/trash');
     }

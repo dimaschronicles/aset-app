@@ -5,56 +5,224 @@ namespace App\Controllers;
 use TCPDF;
 use App\Models\AsetModel;
 use App\Controllers\BaseController;
+use App\Models\AsetKeluarModel;
+use App\Models\AsetMasukModel;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 
 class Report extends BaseController
 {
-    protected $asetModel;
-
     public function __construct()
     {
-        $this->asetModel = new AsetModel();
+        $this->aset = new AsetModel();
+        $this->asetMasuk = new AsetMasukModel();
+        $this->asetKeluar = new AsetKeluarModel();
     }
 
     public function index()
     {
+        $tgl_dari = $this->request->getGet('tanggal_dari');
+        $tgl_sampai = $this->request->getGet('tanggal_sampai');
+        $jenis = $this->request->getGet('jenis');
+
+        if (empty($tgl_dari) || empty($tgl_sampai)) {
+            $aset = '';
+        } else {
+            if ($jenis == 'Aset Masuk') {
+                $aset = $this->asetMasuk->getAsetMasukByDate($tgl_dari, $tgl_sampai);
+                $tgl_dari = $tgl_dari;
+                $tgl_sampai = $tgl_sampai;
+            } elseif ($jenis == 'Aset Keluar') {
+                $aset = $this->asetKeluar->getAsetKeluarByDate($tgl_dari, $tgl_sampai);
+                $tgl_dari = $tgl_dari;
+                $tgl_sampai = $tgl_sampai;
+            }
+        }
+
         $data = [
-            'title' => 'Laporan Aset',
-            'barang' => $this->asetModel->findAll(),
+            'title' => 'Laporan Data Aset',
+            'barang' => $this->aset->getAllAset(),
+            'aset' => $aset,
+            'jenis' => $jenis,
+            // 'gedung' => $this->aset->getGedung(),
+            // 'ruangan' => $this->aset->getRuangan(),
+            // 'gedung_selected' => '',
+            // 'ruangan_selected' => '',
         ];
 
         return view('laporan/index', $data);
     }
 
-    public function exportExcel()
+    public function asetPdf()
     {
-        $dataBarang =  $this->asetModel->findAll();
+        $data = [
+            'aset' => $this->aset->getAllAset(),
+        ];
+
+        $html = view('laporan/asetpdf', $data);
+
+        // create new PDF document
+        $pdf = new TCPDF('L', PDF_UNIT, 'A4', true, 'UTF-8', false);
+
+        // set document information
+        $pdf->SetCreator(PDF_CREATOR);
+        $pdf->SetAuthor('Pengelola PT. Satria Dirgantara');
+        $pdf->SetTitle('Data Aset');
+        $pdf->SetSubject('Skripsi');
+        $pdf->SetKeywords('Laporan, PDF, Skripsi');
+
+        // remove default header/footer
+        $pdf->setPrintHeader(false);
+        $pdf->setPrintFooter(false);
+
+        // ---------------------------------------------------------
+
+        // add a page
+        $pdf->AddPage();
+
+        // print a block of text using Write()
+        $pdf->writeHTML($html);
+        $this->response->setContentType('application/pdf');
+
+        // ---------------------------------------------------------
+
+        //Close and output PDF document
+        $pdf->Output('data-aset-' . date('Ymd') . '.pdf', 'I');
+    }
+
+    public function asetQr()
+    {
+        $data = [
+            'aset' => $this->aset->getAllAset(),
+        ];
+
+        $html = view('laporan/asetqr', $data);
+
+        // create new PDF document
+        $pdf = new TCPDF('P', PDF_UNIT, 'A4', true, 'UTF-8', false);
+
+        // set document information
+        $pdf->SetCreator(PDF_CREATOR);
+        $pdf->SetAuthor('Pengelola PT. Satria Dirgantara');
+        $pdf->SetTitle('Data Aset');
+        $pdf->SetSubject('Skripsi');
+        $pdf->SetKeywords('Laporan, PDF, Skripsi');
+
+        // remove default header/footer
+        $pdf->setPrintHeader(false);
+        $pdf->setPrintFooter(false);
+
+        // ---------------------------------------------------------
+
+        // add a page
+        $pdf->AddPage();
+
+        // print a block of text using Write()
+        $pdf->writeHTML($html);
+        $this->response->setContentType('application/pdf');
+
+        // ---------------------------------------------------------
+
+        //Close and output PDF document
+        $pdf->Output('qr-aset-' . date('Ymd') . '.pdf', 'I');
+    }
+
+    public function printPdf()
+    {
+        $tgl_dari = $this->request->getGet('tanggal_dari');
+        $tgl_sampai = $this->request->getGet('tanggal_sampai');
+        $jenis = $this->request->getGet('jenis');
+
+        if (empty($tgl_dari) || empty($tgl_sampai)) {
+            $aset = '';
+        } else {
+            if ($jenis == 'Aset Masuk') {
+                $aset = $this->asetMasuk->getAsetMasukByDate($tgl_dari, $tgl_sampai);
+                $tgl_dari = $tgl_dari;
+                $tgl_sampai = $tgl_sampai;
+                $nama_file = 'aset-masuk-' . date('Ymd');
+            } elseif ($jenis == 'Aset Keluar') {
+                $aset = $this->asetKeluar->getAsetKeluarByDate($tgl_dari, $tgl_sampai);
+                $tgl_dari = $tgl_dari;
+                $tgl_sampai = $tgl_sampai;
+                $nama_file = 'aset-keluar-' . date('Ymd');
+            }
+        }
+
+        $data = [
+            'title' => 'Laporan Data Aset',
+            'barang' => $this->aset->getAllAset(),
+            'aset' => $aset,
+            'jenis' => $jenis,
+        ];
+
+        $html = view('laporan/pdf', $data);
+        $pdf = new TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
+
+        $pdf->SetCreator(PDF_CREATOR);
+        $pdf->SetAuthor('Nicola Asuni');
+        $pdf->SetTitle('Data Pemasukan');
+        $pdf->SetSubject('TCPDF Tutorial');
+        $pdf->SetKeywords('TCPDF, PDF, example, test, guide');
+
+        $pdf->setPrintHeader(false);
+        $pdf->setPrintFooter(false);
+
+        // set default monospaced font
+        $pdf->SetDefaultMonospacedFont(PDF_FONT_MONOSPACED);
+
+        // set margins
+        $pdf->SetMargins(PDF_MARGIN_LEFT, PDF_MARGIN_TOP, PDF_MARGIN_RIGHT);
+        $pdf->SetHeaderMargin(PDF_MARGIN_HEADER);
+        $pdf->SetFooterMargin(PDF_MARGIN_FOOTER);
+
+        // set auto page breaks
+        $pdf->SetAutoPageBreak(TRUE, PDF_MARGIN_BOTTOM);
+
+        // set image scale factor
+        $pdf->setImageScale(PDF_IMAGE_SCALE_RATIO);
+
+        // set some language-dependent strings (optional)
+        if (@file_exists(dirname(__FILE__) . '/img/eng.php')) {
+            require_once(dirname(__FILE__) . '/lang/eng.php');
+            $pdf->setLanguageArray($l);
+        }
+
+        $pdf->SetFont('times', 12);
+
+        // add a page
+        $pdf->AddPage();
+
+        // set some text to print
+
+        $pdf->writeHTML($html);
+
+        // ---------------------------------------------------------
+
+        //Close and output PDF document
+        $pdf->Output($nama_file . '.pdf', 'I');
+    }
+
+    public function asetExcel()
+    {
+        $dataBarang =  $this->aset->getAllAset();
 
         $spreadsheet = new Spreadsheet();
         // tulis header/nama kolom 
         $spreadsheet->setActiveSheetIndex(0)
             ->setCellValue('A1', 'No')
-            ->setCellValue('B1', 'Nomor')
-            ->setCellValue('C1', 'Sub Nomor')
-            ->setCellValue('D1', 'Satuan')
-            ->setCellValue('E1', 'Kode Barang')
-            ->setCellValue('F1', 'No Aset')
-            ->setCellValue('G1', 'Tercatat')
-            ->setCellValue('H1', 'Kode Lokasi')
-            ->setCellValue('I1', 'Kode Perkap')
-            ->setCellValue('J1', 'Kondisi Aset')
-            ->setCellValue('K1', 'Uraian Aset')
-            ->setCellValue('L1', 'Uraian Perkap')
-            ->setCellValue('M1', 'Kode Ruang')
-            ->setCellValue('N1', 'Uraian Ruang')
-            ->setCellValue('O1', 'Catatan')
-            ->setCellValue('P1', 'Kondisi')
-            ->setCellValue('Q1', 'Nominal Aset')
-            ->setCellValue('R1', 'Foto Aset')
-            ->setCellValue('S1', 'Tanggal Pengadaan')
-            ->setCellValue('T1', 'Sumber Pengadaan')
-            ->setCellValue('U1', 'QR Code')
-            ->setCellValue('V1', 'User Penginput');
+            ->setCellValue('B1', 'Kode Aset')
+            ->setCellValue('C1', 'Nama Aset')
+            ->setCellValue('D1', 'Kategori')
+            ->setCellValue('E1', 'Satuan')
+            ->setCellValue('F1', 'Kondisi')
+            ->setCellValue('G1', 'Gedung')
+            ->setCellValue('H1', 'Ruangan')
+            ->setCellValue('I1', 'Jumlah')
+            ->setCellValue('J1', 'Nilai Aset')
+            ->setCellValue('K1', 'Total Aset')
+            ->setCellValue('L1', 'Supplier')
+            ->setCellValue('M1', 'Keterangan')
+            ->setCellValue('N1', 'Penginput');
 
         $column = 2;
         $i = 1;
@@ -62,32 +230,24 @@ class Report extends BaseController
         foreach ($dataBarang as $data) {
             $spreadsheet->setActiveSheetIndex(0)
                 ->setCellValue('A' . $column, $i++)
-                ->setCellValue('B' . $column, $data['nomor'])
-                ->setCellValue('C' . $column, $data['sub_nomor'])
-                ->setCellValue('D' . $column, $data['satuan'])
-                ->setCellValue('E' . $column, $data['kode_barang'])
-                ->setCellValue('F' . $column, $data['no_aset'])
-                ->setCellValue('G' . $column, $data['tercatat'])
-                ->setCellValue('H' . $column, $data['kode_lokasi'])
-                ->setCellValue('I' . $column, $data['kode_perkap'])
-                ->setCellValue('J' . $column, $data['kondisi_aset'])
-                ->setCellValue('K' . $column, $data['uraian_aset'])
-                ->setCellValue('L' . $column, $data['uraian_perkap'])
-                ->setCellValue('M' . $column, $data['kode_ruang'])
-                ->setCellValue('N' . $column, $data['uraian_ruang'])
-                ->setCellValue('O' . $column, $data['catatan'])
-                ->setCellValue('P' . $column, $data['kondisi'])
-                ->setCellValue('Q' . $column, $data['nominal_aset'])
-                ->setCellValue('R' . $column, $data['foto'])
-                ->setCellValue('S' . $column, $data['tanggal_pengadaan'])
-                ->setCellValue('T' . $column, $data['sumber_pengadaan'])
-                ->setCellValue('U' . $column, $data['qr_code'])
-                ->setCellValue('V' . $column, $data['user_penginput']);
+                ->setCellValue('B' . $column, $data['kode_aset'])
+                ->setCellValue('C' . $column, $data['nama_barang'])
+                ->setCellValue('D' . $column, $data['nama_kategori'])
+                ->setCellValue('E' . $column, $data['satuan'])
+                ->setCellValue('F' . $column, $data['kondisi'])
+                ->setCellValue('G' . $column, $data['nama_gedung'])
+                ->setCellValue('H' . $column, $data['nama_ruangan'])
+                ->setCellValue('I' . $column, $data['jumlah'])
+                ->setCellValue('J' . $column, $data['nilai_aset'])
+                ->setCellValue('K' . $column, $data['total_aset'])
+                ->setCellValue('L' . $column, $data['nama'])
+                ->setCellValue('M' . $column, $data['keterangan'])
+                ->setCellValue('N' . $column, $data['user_penginput']);
             $column++;
         }
         // tulis dalam format .xlsx
         $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
-        $fileName = 'Data Barang';
+        $fileName = 'data-aset-' . date('Ymd');
 
         // Redirect hasil generate xlsx ke web client
         header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
@@ -99,9 +259,9 @@ class Report extends BaseController
 
     public function downloadAllPdf()
     {
-        $barang = $this->asetModel->findAll();
+        $aset = $this->aset->getAllAset();
 
-        $pdf = new TCPDF('L', PDF_UNIT, 'A4', true, 'UTF-8', false);
+        $pdf = new TCPDF('P', PDF_UNIT, 'A4', true, 'UTF-8', false);
 
         $pdf->SetCreator(PDF_CREATOR);
         $pdf->SetAuthor('PT. Satria Dirgantara');
@@ -133,34 +293,33 @@ class Report extends BaseController
         <body>
             <h1>PT. SATRIA DIRGANTARA</h1>
             <hr>
-            <h3>Daftar Aset</h3>
+            <h3>Data Aset</h3>
             <div style="overflow-x:auto;">
             <table border="1" align="center" cellpadding="10" cellspacing="0">
                 <tr>
-                    <th style="width:7%;"><b>No</b></th>
-                    <th><b>Kode Aset</b></th>
-                    <th><b>Kode Lokasi</b></th>
-                    <th><b>Kode Ruang</b></th>
-                    <th><b>Kondisi Aset</b></th>
-                    <th><b>Sumber</b></th>
-                    <th><b>Tahun</b></th>
-                    <th><b>QR Code</b></th>
+                    <th><b>No</b></th>
+                    <th><b>Nama Aset</b></th>
+                    <th><b>Satuan</b></th>
+                    <th><b>Gedung</b></th>
+                    <th><b>Ruangan</b></th>
+                    <th><b>Jumlah</b></th>
+                    <th><b>Nilai Aset</b></th>
+                    <th><b>Total Aset</b></th>
                 </tr>
         ';
 
         $i = 1;
-        foreach ($barang as $b) {
-            $image = '/img/aset/qr/' . $b['qr_code'];
+        foreach ($aset as $a) {
             $html .= '
                 <tr>
-                    <td style="width:7%;">' . $i++ . '</td>
-                    <td>' . $b['kode_barang'] . '</td>
-                    <td>' . $b['kode_lokasi'] . '</td>
-                    <td>' . $b['kode_ruang'] . '</td>
-                    <td>' . $b['kondisi_aset'] . '</td>
-                    <td>' . $b['sumber_pengadaan'] . '</td>
-                    <td>' . $b['tanggal_pengadaan'] . '</td>
-                    <td><img src="' . $image . '"  alt="qr_code" width="50" height="50" /></td>
+                    <td>' . $i++ . '</td>
+                    <td>' . $a['nama_barang'] . '</td>
+                    <td>' . $a['satuan'] . '</td>
+                    <td>' . $a['nama_gedung'] . '</td>
+                    <td>' . $a['nama_ruangan'] . '</td>
+                    <td>' . $a['jumlah'] . '</td>
+                    <td>' . $a['nilai_aset'] . '</td>
+                    <td>' . $a['total_aset'] . '</td>
                 </tr>
             ';
         }

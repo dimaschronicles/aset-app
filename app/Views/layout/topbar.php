@@ -14,7 +14,9 @@
             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
                 <li><a class="dropdown-item" href="/profile">Edit Profil</a></li>
                 <li><a class="dropdown-item" href="/profile/changepassword">Ganti Password</a></li>
-                <li><a class="dropdown-item" href="/profile/resetpassword">Reset Password</a></li>
+                <?php if (session()->get('role') == 1) : ?>
+                    <li><a class="dropdown-item" href="/profile/resetpassword">Reset Password</a></li>
+                <?php endif; ?>
                 <li>
                     <hr class="dropdown-divider" />
                 </li>

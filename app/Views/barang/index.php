@@ -22,21 +22,20 @@
                 <?= session()->getFlashdata('message'); ?>
             </div>
 
-            <div class="card mt-3">
+            <div class="card mt-3 mb-3">
                 <div class="card-header">
                     Daftar Barang
                 </div>
                 <!-- Table -->
-                <div class="card-body shadow-lg">
+                <div class="card-body shadow-sm">
                     <div class="responsive">
                         <table class="table table-bordered text-center" id="datatablesSimple">
                             <thead>
                                 <tr>
                                     <th>No</th>
-                                    <th>Kategori</th>
                                     <th>Nama</th>
                                     <th>Merek</th>
-                                    <th>Tahun</th>
+                                    <th>Tahun Perolehan</th>
                                     <th>Aksi</th>
                                 </tr>
                             </thead>
@@ -45,7 +44,6 @@
                                 foreach ($barang as $b) : ?>
                                     <tr>
                                         <td><?= $i++; ?></td>
-                                        <td><?= $b['nama_kategori']; ?></td>
                                         <td><?= $b['nama_barang']; ?></td>
                                         <td><?= $b['merek']; ?></td>
                                         <td><?= $b['tahun_perolehan']; ?></td>

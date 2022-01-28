@@ -19,20 +19,6 @@
                     <form action="/barang" method="POST">
                         <?= csrf_field(); ?>
                         <div class="form-group row">
-                            <label for="kategori" class="col-sm-3 col-form-label">Kategori Barang</label>
-                            <div class="col-sm-9">
-                                <select name="kategori" id="kategori" class="form-control <?= ($validation->hasError('kategori')) ? 'is-invalid' : ''; ?>">
-                                    <option value="">===Pilih Kategori===</option>
-                                    <?php foreach ($kategori as $k) : ?>
-                                        <option value="<?= $k['id_kategori']; ?>" <?= (old('kategori') == $k['id_kategori']) ? 'selected' : ''; ?>><?= $k['kode_kategori']; ?> - <?= $k['nama_kategori']; ?></option>
-                                    <?php endforeach; ?>
-                                </select>
-                                <div class="invalid-feedback">
-                                    <?= $validation->getError('kategori'); ?>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="form-group row">
                             <label for="nama_barang" class="col-sm-3 col-form-label">Nama Barang</label>
                             <div class="col-sm-9">
                                 <input type="text" class="form-control <?= ($validation->hasError('nama_barang')) ? 'is-invalid' : ''; ?>" name="nama_barang" id="nama_barang" value="<?= old('nama_barang'); ?>" placeholder="Masukan Nama Barang...">
@@ -51,11 +37,11 @@
                             </div>
                         </div>
                         <div class="form-group row">
-                            <label for="tahun_perolehan" class="col-sm-3 col-form-label">Tahun Perolehan</label>
+                            <label for="tanggal_perolehan" class="col-sm-3 col-form-label">Tahun Perolehan</label>
                             <div class="col-sm-9">
-                                <input type="text" class="form-control <?= ($validation->hasError('tahun_perolehan')) ? 'is-invalid' : ''; ?>" name="tahun_perolehan" id="tahun_perolehan" value="<?= old('tahun_perolehan'); ?>" placeholder="Ex: 20XX">
+                                <input type="number" class="form-control <?= ($validation->hasError('tanggal_perolehan')) ? 'is-invalid' : ''; ?>" name="tanggal_perolehan" id="tanggal_perolehan" value="<?= old('tanggal_perolehan'); ?>" placeholder="20XX">
                                 <div class="invalid-feedback">
-                                    <?= $validation->getError('tahun_perolehan'); ?>
+                                    <?= $validation->getError('tanggal_perolehan'); ?>
                                 </div>
                             </div>
                         </div>

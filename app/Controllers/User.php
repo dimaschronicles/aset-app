@@ -67,12 +67,12 @@ class User extends BaseController
                     'is_unique' => 'Email sudah terdaftar!',
                 ]
             ],
-            'role' => [
-                'rules' => 'required',
-                'errors' => [
-                    'required' => 'Level User harus dipilih!',
-                ]
-            ],
+            // 'role' => [
+            //     'rules' => 'required',
+            //     'errors' => [
+            //         'required' => 'Level User harus dipilih!',
+            //     ]
+            // ],
             'telephone' => [
                 'rules' => 'trim|required|numeric|min_length[11]|max_length[13]',
                 'errors' => [

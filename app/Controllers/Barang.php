@@ -18,7 +18,7 @@ class Barang extends BaseController
     {
         $data = [
             'title' => 'Data Barang',
-            'barang' => $this->barang->getBarang(),
+            'barang' => $this->barang->findAll(),
         ];
 
         return view('barang/index', $data);
@@ -26,10 +26,6 @@ class Barang extends BaseController
 
     public function create()
     {
-        if (session('role') == 3) {
-            return redirect()->to('home');
-        }
-
         $data = [
             'title' => 'Tambah Data Barang',
             'validation' => \Config\Services::validation(),
@@ -42,23 +38,16 @@ class Barang extends BaseController
     public function save()
     {
         if (!$this->validate([
-            'kategori' => [
-                'rules' => 'trim|required',
-                'errors' => [
-                    'required' => 'Kategori harus diisi!',
-                ]
-            ],
             'nama_barang' => [
                 'rules' => 'trim|required',
                 'errors' => [
                     'required' => 'Nama Barang harus diisi!',
                 ]
             ],
-            'tahun_perolehan' => [
-                'rules' => 'trim|required|numeric',
+            'tanggal_perolehan' => [
+                'rules' => 'trim|required',
                 'errors' => [
                     'required' => 'Tahun Perolehan harus diisi!',
-                    'numeric' => 'Tahun Perolehan harus angka!',
                 ]
             ],
             'merek' => [
@@ -74,8 +63,7 @@ class Barang extends BaseController
         $this->barang->save([
             'nama_barang' => $this->request->getVar('nama_barang'),
             'merek' => $this->request->getVar('merek'),
-            'tahun_perolehan' => $this->request->getVar('tahun_perolehan'),
-            'id_kategori' => $this->request->getVar('kategori'),
+            'tahun_perolehan' => $this->request->getVar('tanggal_perolehan'),
         ]);
 
         session()->setFlashdata('message', '<div class="alert alert-success">Data <strong>barang</strong> berhasil ditambahkan!</div>');
@@ -85,15 +73,10 @@ class Barang extends BaseController
 
     public function edit($id)
     {
-        if (session('role') == 3) {
-            return redirect()->to('home');
-        }
-
         $data = [
             'title' => 'Ubah Data Barang',
             'validation' => \Config\Services::validation(),
-            'barang' => $this->barang->getBarang($id),
-            'kategori' => $this->kategori->findAll(),
+            'barang' => $this->barang->find($id),
         ];
 
         return view('barang/edit', $data);
@@ -102,12 +85,6 @@ class Barang extends BaseController
     public function update($id)
     {
         if (!$this->validate([
-            'kategori' => [
-                'rules' => 'trim|required',
-                'errors' => [
-                    'required' => 'Kategori harus diisi!',
-                ]
-            ],
             'nama_barang' => [
                 'rules' => 'trim|required',
                 'errors' => [
@@ -115,10 +92,9 @@ class Barang extends BaseController
                 ]
             ],
             'tahun_perolehan' => [
-                'rules' => 'trim|required|numeric',
+                'rules' => 'trim|required',
                 'errors' => [
                     'required' => 'Tahun Perolehan harus diisi!',
-                    'numeric' => 'Tahun Perolehan harus angka!',
                 ]
             ],
             'merek' => [
@@ -136,7 +112,6 @@ class Barang extends BaseController
             'nama_barang' => $this->request->getVar('nama_barang'),
             'merek' => $this->request->getVar('merek'),
             'tahun_perolehan' => $this->request->getVar('tahun_perolehan'),
-            'id_kategori' => $this->request->getVar('kategori'),
         ]);
 
         session()->setFlashdata('message', '<div class="alert alert-success">Data <strong>barang</strong> berhasil diubah!</div>');

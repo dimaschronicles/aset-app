@@ -85,6 +85,14 @@ $routes->get('/satuan/edit/(:any)', 'Satuan::edit/$1');
 $routes->put('/satuan/(:any)', 'Satuan::update/$1');
 $routes->delete('/satuan/(:num)', 'Satuan::delete/$1');
 
+// gedung
+$routes->get('/supplier', 'Supplier::index');
+$routes->get('/supplier/add', 'Supplier::create');
+$routes->post('/supplier', 'Supplier::save');
+$routes->get('/supplier/edit/(:any)', 'Supplier::edit/$1');
+$routes->put('/supplier/(:any)', 'Supplier::update/$1');
+$routes->delete('/supplier/(:num)', 'Supplier::delete/$1');
+
 // aset
 $routes->get('/aset', 'Aset::index');
 $routes->get('/aset/add', 'Aset::create');
@@ -94,6 +102,17 @@ $routes->put('/aset/(:any)', 'Aset::update/$1');
 $routes->delete('/aset/(:num)', 'Aset::delete/$1');
 $routes->get('/aset/restore(:segment)', 'Aset::restore/$1');
 $routes->delete('/aset/destroy/(:any)', 'Aset::destroy/$1');
+$routes->get('/aset/hapus', 'Aset::trash');
+
+// aset masuk
+$routes->get('/asetmasuk', 'AsetMasuk::index');
+$routes->post('/asetmasuk', 'AsetMasuk::save');
+$routes->delete('/asetmasuk/(:num)', 'AsetMasuk::delete/$1');
+
+// aset keluar
+$routes->get('/asetkeluar', 'asetKeluar::index');
+$routes->post('/asetkeluar', 'AsetKeluar::save');
+$routes->delete('/asetkeluar/(:num)', 'AsetKeluar::delete/$1');
 
 // laporan
 $routes->get('/laporan', 'Report::index');

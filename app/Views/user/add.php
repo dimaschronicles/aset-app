@@ -18,15 +18,16 @@
                 <div class="card-body">
                     <form action="/user" method="POST">
                         <?= csrf_field(); ?>
+                        <input type="hidden" name="role" id="role" value="2">
                         <div class="form-row">
-                            <div class="form-group col-md-6">
+                            <div class="form-group col-md-12">
                                 <label for="username">Username</label>
                                 <input type="text" class="form-control <?= ($validation->hasError('username')) ? 'is-invalid' : ''; ?>" name="username" id="username" value="<?= old('username'); ?>">
                                 <div class="invalid-feedback">
                                     <?= $validation->getError('username'); ?>
                                 </div>
                             </div>
-                            <div class="form-group col-md-6">
+                            <!-- <div class="form-group col-md-6">
                                 <label for="role">Level User</label>
                                 <select name="role" id="role" class="form-control <?= ($validation->hasError('role')) ? 'is-invalid' : ''; ?>">
                                     <option value="">===Pilih Role===</option>
@@ -36,7 +37,7 @@
                                 <div class="invalid-feedback">
                                     <?= $validation->getError('role'); ?>
                                 </div>
-                            </div>
+                            </div> -->
                         </div>
                         <div class="form-row">
                             <div class="form-group col-md-6">

@@ -25,7 +25,7 @@
                         Daftar Kategori
                     </div>
                     <!-- Table -->
-                    <div class="card-body shadow-lg">
+                    <div class="card-body shadow-sm">
                         <div class="responsive">
                             <table class="table table-bordered text-center" id="datatablesSimple">
                                 <thead>

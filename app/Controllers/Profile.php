@@ -19,7 +19,7 @@ class Profile extends BaseController
         $data = [
             'title' => 'Edit Profil',
             'validation' => \Config\Services::validation(),
-            'user' => $this->userModel->where('nik', session()->get('nik'))->first(),
+            'user' => $this->userModel->where('username', session()->get('username'))->first(),
         ];
 
         return view('profile/edit_profile', $data);
@@ -79,18 +79,20 @@ class Profile extends BaseController
             // upload gambar
             $imgFile->move('img/profile', $imgName);
 
-            if ($imgName != 'default.jpg') {
+            if ($this->request->getVar('oldImage') == 'default.jpg') {
+                //
+            } else if ($this->request->getVar('oldImage') != 'default.jpg') {
                 unlink('img/profile/' . $this->request->getVar('oldImage'));
             }
         }
 
         $this->userModel->save([
-            'id' => $this->request->getVar('id'),
-            'name' => $this->request->getVar('name'),
+            'id_user' => $this->request->getVar('id'),
+            'nama' => $this->request->getVar('name'),
             'username' => $this->request->getVar('username'),
             'email' => $this->request->getVar('email'),
-            'telephone' => $this->request->getVar('telephone'),
-            'image' => $imgName,
+            'no_telp' => $this->request->getVar('telephone'),
+            'foto' => $imgName,
         ]);
 
         session()->setFlashdata('message', '<div class="alert alert-success">Profil berhasil disimpan!</div>');
@@ -103,7 +105,7 @@ class Profile extends BaseController
         $data = [
             'title' => 'Ganti Password',
             'validation' => \Config\Services::validation(),
-            'user' => $this->userModel->where('nik', session()->get('nik'))->first(),
+            'user' => $this->userModel->where('username', session()->get('username'))->first(),
         ];
 
         return view('profile/change_password', $data);
@@ -139,7 +141,7 @@ class Profile extends BaseController
             return redirect()->to('/profile/changepassword')->withInput();
         }
 
-        $user = $this->userModel->where('nik', session()->get('nik'))->first();
+        $user = $this->userModel->where('username', session()->get('username'))->first();
 
         $current_password = $this->request->getVar('current_password');
         $new_password = $this->request->getVar('new_password');
@@ -155,7 +157,7 @@ class Profile extends BaseController
                 $password_hash = password_hash($new_password, PASSWORD_DEFAULT);
 
                 $this->userModel->save([
-                    'id' => $this->request->getVar('id'),
+                    'id_user' => $this->request->getVar('id'),
                     'password' => $password_hash,
                 ]);
 
